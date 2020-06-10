@@ -208,3 +208,9 @@ spike_confidence = cm[1][1]/(y_pred == 1).sum() # 0.13 for window = 6
 print('Spike accuracy is {}'.format(spike_accuracy))
 print('Spike confidence is {}'.format(spike_confidence))
 
+plt.figure(figsize=(15,5))
+plt.plot(offers18)
+plt.ylabel('$/MWh')
+plt.xlabel('Time')
+plt.title('Higher value accepted offers for each SP throughout the year of 2018', fontsize = '16')
+plt.xticks(np.linspace(0,len(offers18), 12), ['Jan', 'Fev', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Ago', 'Set', 'Oct', 'Nov', 'Dec'])
