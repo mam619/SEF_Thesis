@@ -106,7 +106,7 @@ spike_var_16 = pd.DataFrame({'window': window, 'num_spikes': num_spikes_16, 'num
 spike_var_16['total'] = spike_var_16['num_spikes'] + spike_var_16['num_normal']
 
 # =============================================================================
-# # plot number of spikes and number of normal occurances vs rolling window 
+# Plot number of spikes and number of normal occurances vs rolling window 
 # =============================================================================
 
 # calculating maximums to after plot for each year
@@ -119,17 +119,28 @@ max_spike_16 = spike_var_16['num_spikes'].max()
 
 # spike occurences plot
 
-# 2018
-rcParams['figure.figsize'] = 10,5
-plt.plot(range_w, spike_var_18['num_spikes'])
+# 2018, 2017, 2016
+rcParams['figure.figsize'] = 15,5
+plt.plot(range_w, spike_var_18['num_spikes'], label = '2018')
+plt.plot(range_w, spike_var_17['num_spikes'], label = '2017')
+plt.plot(range_w, spike_var_16['num_spikes'], label = '2016')
 plt.ylabel('Number of SP')
 plt.xlabel('Window number')
 plt.xticks(np.arange(0, 62, 2))
-plt.scatter(spike_var_18[spike_var_18['num_spikes'] == max_spike_18].window, max_spike_18 , color = 'red', label = 'Maximum value')
-plt.title('Number of SP with spike occurances according\n to recursive filter (RF) for different rolling windows on 2018\n', fontsize= 15)
+plt.scatter(spike_var_18[spike_var_18['num_spikes'] == max_spike_18].window, max_spike_18 , color = 'red', label = 'Maximum values')
+plt.text(spike_var_18[spike_var_18['num_spikes'] == max_spike_18].window + 0.5, max_spike_18 + 0.5, '({},{})'.format(spike_var_18[spike_var_18['num_spikes'] == max_spike_18].window.iloc[0], max_spike_18))
+plt.scatter(spike_var_17[spike_var_17['num_spikes'] == max_spike_17].window, max_spike_17 , color = 'red')
+plt.text(spike_var_17[spike_var_17['num_spikes'] == max_spike_17].window + 0.5, max_spike_17 + 0.5, '({},{})'.format(spike_var_17[spike_var_17['num_spikes'] == max_spike_17].window.iloc[0], max_spike_17))
+plt.scatter(spike_var_16[spike_var_16['num_spikes'] == max_spike_16].window, max_spike_16 , color = 'red')
+plt.text(spike_var_16[spike_var_16['num_spikes'] == max_spike_16].window + 0.5, max_spike_16 + 0.5, '({},{})'.format(spike_var_16[spike_var_16['num_spikes'] == max_spike_16].window.iloc[0], max_spike_16))
+plt.title('Number of SP with spike occurances according\n to recursive filter (RF) for different \nrolling windows for three different years\n', fontsize= 15)
+plt.minorticks_on() #required for the minor grid
+plt.grid(which = 'major', linestyle ='-', linewidth = '0.25', color = 'black')
+#plt.grid(which = 'minor', linestyle = ':', linewidth = '0.5', color = 'black')
 plt.legend()
 plt.show()
 
+'''
 # 2017
 rcParams['figure.figsize'] = 10,5
 plt.plot(range_w, spike_var_17['num_spikes'])
@@ -137,7 +148,9 @@ plt.ylabel('Number of SP')
 plt.xlabel('Window number')
 plt.xticks(np.arange(0, 62, 2))
 plt.scatter(spike_var_17[spike_var_17['num_spikes'] == max_spike_17].window, max_spike_17 , color = 'red', label = 'Maximum value')
+plt.text(spike_var_17[spike_var_17['num_spikes'] == max_spike_17].window[0] + 0.5, max_spike_17 + 0.5, '({},{})'.format(spike_var_17[spike_var_17['num_spikes'] == max_spike_17].window.iloc[0], max_spike_17))
 plt.title('Number of SP with spike occurances according\n to recursive filter (RF) for different rolling windows on 2017\n', fontsize= 15)
+plt.grid(which = 'major', linestyle ='-', linewidth = '0.25', color = 'black')
 plt.legend()
 plt.show()
 
@@ -148,9 +161,12 @@ plt.ylabel('Number of SP')
 plt.xlabel('Window number')
 plt.xticks(np.arange(0, 62, 2))
 plt.scatter(spike_var_16[spike_var_16['num_spikes'] == max_spike_16].window, max_spike_16 , color = 'red', label = 'Maximum value')
+plt.text(spike_var_16[spike_var_16['num_spikes'] == max_spike_16].window + 0.5, max_spike_16 + 0.5, '({},{})'.format(spike_var_16[spike_var_16['num_spikes'] == max_spike_16].window.iloc[0], max_spike_16))
 plt.title('Number of SP with spike occurances according\n to recursive filter (RF) for different rolling windows on 2016\n', fontsize= 15)
+plt.grid(which = 'major', linestyle ='-', linewidth = '0.25', color = 'black')
 plt.legend()
 plt.show()
+'''
 
 # plot of both spike occurences and normal opperation SP together
 # 2018
@@ -162,10 +178,14 @@ plt.title('Number of SP with spike occurances and under normal operation for the
 plt.xticks(np.arange(0, 62, 2))
 #plt.scatter(spike_var[spike_var['num_normal'] == max_num].window, max_num , color = 'red')
 plt.scatter(spike_var_18[spike_var_18['num_spikes'] == max_spike_18].window, max_spike_18 , color = 'red', label = 'Maximum value')
+plt.text(spike_var_18[spike_var_18['num_spikes'] == max_spike_18].window + 0.5, max_spike_18 + 0.5, '({},{})'.format(spike_var_18[spike_var_18['num_spikes'] == max_spike_18].window.iloc[0], max_spike_18))
+plt.grid(which = 'major', linestyle ='-', linewidth = '0.25', color = 'black')
 plt.legend()
 plt.show()
 
-# create final data set with desired w
+# =============================================================================
+# Visualisation of data for different time gaps
+# =============================================================================
 w = 50
 offers1850 = data18
 plt.figure(figsize=(15,5))
