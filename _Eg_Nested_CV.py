@@ -56,3 +56,13 @@ tscv = TimeSeriesSplit(n_splits=5)
 scores = cross_val_score(model, X_train, y_train, cv=tscv, scoring=r2)
 
 # FOR GRIDSEARCH CV do the dame with cv = time series split!
+
+# find the best parameters after fitting X_train with y_train in estimator
+# optimal model
+model = build_model(_alpha=0.1, _l1_ratio=0.1)
+# train model
+model.fit(X_train, y_train)
+# test score
+y_predicted = model.predict(X_test)
+score = r2_score(y_test, y_predicted, multioutput='uniform_average')
+print("Test Loss: {0:.3f}".format(score))
