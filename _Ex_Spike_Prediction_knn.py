@@ -11,7 +11,7 @@ from sklearn.neighbors import KNeighborsClassifier
 from sklearn.preprocessing import StandardScaler
 
 # download data set
-from _Ex_Spike_Prediction_knn import data18
+from _Ex_Spike_Classification_BinaryDataSet_1std import data18
 
 # =============================================================================
 # Some initial classification predictions
@@ -41,9 +41,7 @@ for k in k_range:
     knn.fit(X_train, y_train)
     y_pred = pd.Series(knn.predict(X_test))
     scores.append(accuracy_score(y_test, y_pred))
-
-import matplotlib.pyplot as plt
-
+    
 # plot results
 plt.plot(k_range, scores)
 plt.xlabel('Value of K for KNN')

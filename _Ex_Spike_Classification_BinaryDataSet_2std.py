@@ -14,7 +14,7 @@ offers = pd.read_csv('WORKSHOP_Ioannis/Offers.csv', index_col = 0)
 data = pd.concat([features, offers], axis=1, sort=True)
 
 # shift offers two SP back for realistic predictions
-data['Offers'] = data['Offers'].shift(-2)
+# data['Offers'] = data['Offers'].shift(-2) NOT SURE IS CORRECT
 
 # filter any offer higher than 6000 out
 offers = offers[offers < 6000]

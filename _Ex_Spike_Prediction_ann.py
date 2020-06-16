@@ -4,8 +4,7 @@
 
 import pandas as pd
 import numpy as np
-import matplotlib.pyplot as plt
-from _Ex_Spike_Prediction_knn import data18
+from _Ex_Spike_Classification_BinaryDataSet_1std import data18
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 

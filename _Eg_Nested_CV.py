@@ -66,3 +66,18 @@ model.fit(X_train, y_train)
 y_predicted = model.predict(X_test)
 score = r2_score(y_test, y_predicted, multioutput='uniform_average')
 print("Test Loss: {0:.3f}".format(score))
+
+
+# =============================================================================
+# MODEL PERFORMANCE OVER TIME
+# 
+# def my_corrcoef(est, X, y):
+# """Return the correlation coefficient
+# between model predictions and a validation set."""
+# return np.corrcoef(y, est.predict(X))[1, 0]
+# # Grab the date of the first index of each validation set
+# first_indices = [data.index[tt[0]] for tr, tt in cv.split(X, y)]
+# # Calculate the CV scores and convert to a Pandas Series
+# cv_scores = cross_val_score(model, X, y, cv=cv, scoring=my_corrcoef)
+# cv_scores = pd.Series(cv_scores, index=first_indices)
+# =============================================================================
