@@ -6,33 +6,45 @@
 
 import pandas as pd
 
+# =============================================================================
+# 1) Previous value Offers to account with seasonality
+#       1 Offer price from previous day same SP - PrevDAY
+#       2 Offer price from previous week same SP of the week - PrevWEEK
+# =============================================================================
+
+shifts = pd.read_csv('UK_shifted_offers.csv', nrows = 52608)
+shifts.set_index('Unnamed: 0', inplace = True)
+shifts.index.names = ['index']
+
+# ready to concat
 
 # =============================================================================
-# 1) from DA Margin DATA:
+# 2) from DA Margin DATA:
 #      imbalance of the grid for all SP in MW
 #      margin available for all SP in MW
 # =============================================================================
 
 # download csv created
-DA_margin = pd.read_csv('.UK_DA_Margin_Imb_FORECAST.csv', index_col = [0], usecols=[1, 2,3])
+DA_margin = pd.read_csv('UK_DA_margin_imb_forecast.csv', index_col = [0], usecols=[1, 2,3])
 
-# if there is any nan value fill with mean
-DA_margin.fillna(value = DA_margin.mean(), inplace = True)
+# set equal index to previous data frame
+DA_margin.set_index(shifts.index, inplace = True)
 
 # ready to concat
 
 # =============================================================================
-# 2) from MARKET DEPTH DATA:
+# 3) from MARKET DEPTH DATA:
 #       volume of all offers and bids in MW
 #       volume of accepted offers and bids in MW
 # =============================================================================
 
 # download csv created
-market_depth = pd.read_csv('.UK_Market_Depth_Data.csv', usecols = [1,2,3,4,5])
+market_depth = pd.read_csv('UK_Market_depth_data.csv', usecols = [1,2,3,4,5])
 
 # solve index and set it to data frame
 market_depth['index'] = market_depth['index'].astype(int)
-market_depth.set_index('index', inplace = True)
+market_depth.set_index(shifts.index, inplace = True)
+market_depth.drop('index', axis = 1, inplace = True)
 
 # if there is any nan value fill with mean
 market_depth.fillna(value = market_depth.mean(), inplace = True)
@@ -45,19 +57,20 @@ ratios = pd.DataFrame({'Ratio_offer_volumes': ratio_offers,
                        'Ratio_bid_volumes': ratio_bids})
 
 # set same index to ratios data frame
-ratios.set_index(DA_margin.index, inplace = True)
+ratios.set_index(shifts.index, inplace = True)
+ratios.index.names = ['index']
 
 # ready to concat
 
 # =============================================================================
-# 3) Wind Peaks forecast:
+# 4) Wind Peaks forecast:
 #         Time of the peak
 #         Peak generation in MW
 #         Total meatered capacity at the peak time in MW
 # =============================================================================
         
 # download csv created
-wind_peak = pd.read_csv('.UK_Wind_peaks_daily_FORECAST.csv', usecols = [1,2,3,4])
+wind_peak = pd.read_csv('UK_wind_peaks_daily_forecast.csv', usecols = [1,2,3,4])
 
 # convert time into sp
 wind_peak['sp_peak'] = (wind_peak['time_peak']/100) * 2 + 1
@@ -70,21 +83,24 @@ wind_peak['index'] = wind_peak['index'].astype(float).astype(int)
 wind_peak.set_index('index', inplace = True)
 wind_peak.drop('time_peak', axis = 1, inplace =True)
 wind_peak.drop('sp_peak', axis = 1, inplace =True)
-wind_peak = DA_margin.join(wind_peak)
-wind_peak.drop('DA_margin', axis = 1, inplace =True)
-wind_peak.drop('DA_imb', axis = 1, inplace =True)
+wind_peak = shifts.join(wind_peak)
+wind_peak.drop('PrevDay', axis = 1, inplace =True)
+wind_peak.drop('PrevWeek', axis = 1, inplace =True)
 
 # fill nan value with 0
 wind_peak.fillna(value = 0, inplace = True)
 
+wind_peak_bin = wind_peak['peak(MW)']/wind_peak['peak(MW)']
+wind_peak_bin.fillna(value = 0, inplace = True)
+
 # ready to concat
 
 # =============================================================================
-# 4) Exchange_rates_daily
+# 5) Exchange_rates_daily
 # =============================================================================
 
 # download csv created
-rates = pd.read_csv('.EURGBP_Exchange_rates_daily.csv', usecols = [0,2])
+rates = pd.read_csv('UK_EURGBP_daily_exchange_rate.csv', usecols = [0,2])
 
 # set index right
 rates[['d','m', 'y']] = rates.Date.str.split("/",expand=True)
@@ -116,7 +132,7 @@ rates_full.set_index(wind_peak.index, inplace = True)
 # ready to concat
 
 # =============================================================================
-# 5) France features 
+# 6) France features 
 #       DA price
 #       hourly load forecasted
 #       hourly generation forecasted
@@ -125,9 +141,9 @@ rates_full.set_index(wind_peak.index, inplace = True)
 import numpy as np
 
 # download csvs
-price_france = pd.read_csv('.France_DA_prices.csv', nrows = 26281)
-gen_france = pd.read_csv('.France_Generation_forecast.csv', nrows = 26281)
-load_france = pd.read_csv('.France_Load_forecast.csv', nrows = 26281)
+price_france = pd.read_csv('France_DA_prices.csv', nrows = 26281)
+gen_france = pd.read_csv('France_generation_forecast.csv', nrows = 26281)
+load_france = pd.read_csv('France_load_forecast.csv', nrows = 26281)
 
 # drop first row to start at 2016 01 01 at 1 am (mid night in UK)
 price_france.drop(0, axis = 0, inplace = True)
@@ -195,19 +211,21 @@ france_data.set_index('index', inplace = True)
 # ready to concat
 
 # =============================================================================
-# 6) Dinorwig presence (Binary Series when Dinorwig offers have been accepted (1) or not (0))
+# 7) Dinorwig presence (Binary Series when Dinorwig offers have been accepted (1) or not (0))
 # =============================================================================
 
-dino_bin = pd.read_csv('.UK_Dinorwig_presence.csv')
-dino_bin.set_index('Unnamed: 0', inplace = True)
+dino_bin = pd.read_csv('UK_Dinorwig_presence.csv')
+dino_bin.drop('Unnamed: 0', axis = 1, inplace = True)
+dino_bin.set_index(shifts.index, inplace = True)
 
 # ready to concat
+
 
 # =============================================================================
 # COMBINE ALL DATA SETS
 # =============================================================================
 
-Features_22 = pd.concat([DA_margin, wind_peak, rates_full, france_data, dino_bin], axis = 1)
-Features_2 = pd.concat([DA_margin, wind_peak, rates_full, france_data, ratios, dino_bin], axis = 1)
+Features_22 = pd.concat([ratios, DA_margin, wind_peak_bin, rates_full, france_data, dino_bin], axis = 1)
+Features_2 = pd.concat([shifts, ratios, DA_margin, wind_peak_bin, rates_full, france_data, dino_bin], axis = 1)
 
-Features_2.to_csv('.FEATURES_2.csv')
+Features_2.to_csv('Features_APIs.csv')

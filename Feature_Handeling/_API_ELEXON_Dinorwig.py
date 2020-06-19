@@ -36,7 +36,7 @@ dino_bin = pd.read_csv('Dino.csv', usecols = [1])
 dino_bin.columns = ['dino']
 dino_bin = dino_bin['dino'].to_list()   
 
-a = pd.read_csv('.UK_DA_Margin_Imb_forecast.csv', usecols = [1])
+a = pd.read_csv('UK_DA_margin_imb.csv', usecols = [1])
 index = a['index'].to_list()
 
 for i in index[47103:]:
@@ -62,5 +62,5 @@ for i in index[47103:]:
 # create data frame and save as csv
 dino_bin = pd.DataFrame(dino_bin, index = index)
 dino_bin.columns = ['dino_bin']
-dino_bin.to_csv(r'C:\Users\maria\OneDrive - Imperial College London\SEF-DESKTOP-72DBAPV\THESIS\Python_Coding\.UK_Dinorwig_presence.csv')
+dino_bin.to_csv('UK_Dinorwig_presence.csv')
     

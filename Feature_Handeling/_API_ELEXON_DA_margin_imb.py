@@ -70,5 +70,5 @@ for i in years:
 
 DA_margin_imb = pd.DataFrame({'index': index , 'DA_margin': MELNGC, 'DA_imb': IMBALNGC})
 
-DA_margin_imb.to_csv(r'C:\Users\maria\Documents\DA_margin_imb.csv')
+DA_margin_imb.to_csv('UK_DA_margin_imb.csv')
 

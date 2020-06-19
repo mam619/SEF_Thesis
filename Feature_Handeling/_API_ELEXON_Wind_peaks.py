@@ -129,4 +129,4 @@ for i in range(0, len(data)):
 wind_peak = pd.DataFrame({'index': index, 'time_peak': time, 'peak(MW)': peak, 'total_cap(MW)': total_cap})
 
 # save as csv
-wind_peak.to_csv(r'C:\Users\maria\Documents\Wind_peaks_daily_FORECAST.csv')
+wind_peak.to_csv('UK_wind_peaks_daily_forecast.csv')

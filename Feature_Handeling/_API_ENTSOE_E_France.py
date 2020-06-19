@@ -17,13 +17,13 @@ country_code = 'FR'
 # methods that return Pandas Series
 
 prices_france = client.query_day_ahead_prices(country_code, start=start, end=end)
-prices_france.to_csv('.France_DA_prices(2).csv')
+prices_france.to_csv('France_DA_prices.csv')
 
 load_forecast_france = client.query_load_forecast(country_code, start=start, end=end)
-load_forecast_france.to_csv('.France_Load_forecast(2).csv')
+load_forecast_france.to_csv('France_Load_forecast.csv')
 
 generation_forecast = client.query_generation_forecast(country_code, start=start, end=end)
-generation_forecast.to_csv('.France_Generation_forecast(2).csv')
+generation_forecast.to_csv('France_Generation_forecast.csv')
 
 
 
