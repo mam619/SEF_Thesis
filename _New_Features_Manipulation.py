@@ -6,8 +6,23 @@
 
 import pandas as pd
 
+
 # =============================================================================
-# 1) from MARKET DEPTH DATA:
+# 1) from DA Margin DATA:
+#      imbalance of the grid for all SP in MW
+#      margin available for all SP in MW
+# =============================================================================
+
+# download csv created
+DA_margin = pd.read_csv('.UK_DA_Margin_Imb_FORECAST.csv', index_col = [0], usecols=[1, 2,3])
+
+# if there is any nan value fill with mean
+DA_margin.fillna(value = DA_margin.mean(), inplace = True)
+
+# ready to concat
+
+# =============================================================================
+# 2) from MARKET DEPTH DATA:
 #       volume of all offers and bids in MW
 #       volume of accepted offers and bids in MW
 # =============================================================================
@@ -22,26 +37,15 @@ market_depth.set_index('index', inplace = True)
 # if there is any nan value fill with mean
 market_depth.fillna(value = market_depth.mean(), inplace = True)
 
+ratio_offers = market_depth['Accepted_offer_vol']/market_depth['Offer_vol']
+ratio_bids = market_depth['Accepted_bid_vol']/market_depth['Bid_vol']
+
 # create a ratio of accepted to total number of offers and bids (seperatly)
-ratios = pd.DataFrame({'Ratio_offer_volumes': market_depth['Accepted_offer_vol']/market_depth['Offer_vol'],
-                       'Ratio_bid_volumes': market_depth['Accepted_bid_vol']/market_depth['Bid_vol']})
+ratios = pd.DataFrame({'Ratio_offer_volumes': ratio_offers,
+                       'Ratio_bid_volumes': ratio_bids})
 
 # set same index to ratios data frame
-ratios.set_index(market_depth.index, inplace = True)
-
-# ready to concat
-
-# =============================================================================
-# 2) from DA Margin DATA:
-#      imbalance of the grid for all SP in MW
-#      margin available for all SP in MW
-# =============================================================================
-
-# download csv created
-DA_margin = pd.read_csv('.UK_DA_Margin_Imb_FORECAST.csv', index_col = [0], usecols=[1, 2,3])
-
-# if there is any nan value fill with mean
-DA_margin.fillna(value = DA_margin.mean(), inplace = True)
+ratios.set_index(DA_margin.index, inplace = True)
 
 # ready to concat
 
@@ -184,8 +188,26 @@ for i in load_france['load_france_forecast']:
         n.append(i)
         c = c + 1
 
-# attach to data frame and save as csv
+# attach to data frame 
 france_data = pd.DataFrame({'index': wind_peak.index, 'DA_price_france': l, 'gen_france_forecast': m, 'load_france_forecast': n })
 france_data.set_index('index', inplace = True)
 
+# ready to concat
 
+# =============================================================================
+# 6) Dinorwig presence (Binary Series when Dinorwig offers have been accepted (1) or not (0))
+# =============================================================================
+
+dino_bin = pd.read_csv('.UK_Dinorwig_presence.csv')
+dino_bin.set_index('Unnamed: 0', inplace = True)
+
+# ready to concat
+
+# =============================================================================
+# COMBINE ALL DATA SETS
+# =============================================================================
+
+Features_22 = pd.concat([DA_margin, wind_peak, rates_full, france_data, dino_bin], axis = 1)
+Features_2 = pd.concat([DA_margin, wind_peak, rates_full, france_data, ratios, dino_bin], axis = 1)
+
+Features_2.to_csv('.FEATURES_2.csv')

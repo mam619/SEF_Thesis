@@ -9,7 +9,6 @@
 import httplib2
 import re
 import pandas as pd
-import numpy as np
 from numba import jit
 
 
@@ -33,12 +32,14 @@ def post_elexon(url):
 
 data = post_elexon('https://api.bmreports.com/BMRS/DETSYSPRICES/v1?APIKey=b297kkm9vfw946g&SettlementDate=2018-01-01&SettlementPeriod=3&ServiceType=xml') 
 
-dino_bin = []              
+dino_bin = pd.read_csv('Dino.csv', usecols = [1]) 
+dino_bin.columns = ['dino']
+dino_bin = dino_bin['dino'].to_list()   
 
 a = pd.read_csv('.UK_DA_Margin_Imb_forecast.csv', usecols = [1])
 index = a['index'].to_list()
 
-for i in index:
+for i in index[47103:]:
     
     y = str(i)[0:4]
     m = str(i)[4:6]
@@ -57,4 +58,9 @@ for i in index:
             c = c
             
     dino_bin.append(c)
+
+# create data frame and save as csv
+dino_bin = pd.DataFrame(dino_bin, index = index)
+dino_bin.columns = ['dino_bin']
+dino_bin.to_csv(r'C:\Users\maria\OneDrive - Imperial College London\SEF-DESKTOP-72DBAPV\THESIS\Python_Coding\.UK_Dinorwig_presence.csv')
     
