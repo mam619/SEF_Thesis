@@ -111,3 +111,81 @@ rates_full.set_index(wind_peak.index, inplace = True)
 
 # ready to concat
 
+# =============================================================================
+# 5) France features 
+#       DA price
+#       hourly load forecasted
+#       hourly generation forecasted
+# =============================================================================
+
+import numpy as np
+
+# download csvs
+price_france = pd.read_csv('.France_DA_prices.csv', nrows = 26281)
+gen_france = pd.read_csv('.France_Generation_forecast.csv', nrows = 26281)
+load_france = pd.read_csv('.France_Load_forecast.csv', nrows = 26281)
+
+# drop first row to start at 2016 01 01 at 1 am (mid night in UK)
+price_france.drop(0, axis = 0, inplace = True)
+gen_france.drop(0, axis = 0, inplace = True)
+load_france.drop(0, axis = 0, inplace = True)
+
+# set date indexes (incomplete) from the dataset
+price_france.set_index(price_france['Unnamed: 0'].astype(str), inplace = True)
+price_france.drop('Unnamed: 0', axis = 1, inplace = True)
+gen_france.set_index(gen_france['Unnamed: 0'].astype(str), inplace = True)
+gen_france.drop('Unnamed: 0', axis = 1, inplace = True)
+load_france.set_index(load_france['Unnamed: 0'].astype(str), inplace = True)
+load_france.drop('Unnamed: 0', axis = 1, inplace = True)
+
+# create a complete date index for the range of data used (2016 - 2018)
+a = pd.date_range(start='1/1/2016 01:00', end = '01/01/2019 00:00', tz='Europe/Brussels', freq = 'H')
+dummy = np.arange(0, 26304)
+df = pd.DataFrame(dummy, index = a.astype(str))
+
+# join data frames with dummy dataframe to find nan values
+price_france = price_france.join(df, how = 'right')
+price_france.columns = ['DA_price_france', 'dummy']
+price_france.drop('dummy', axis = 1, inplace = True)
+
+gen_france = gen_france.join(df, how = 'right')
+gen_france.columns = ['gen_france_forecast', 'dummy']
+gen_france.drop('dummy', axis = 1, inplace = True)
+
+load_france = load_france.join(df, how = 'right')
+load_france.columns = ['load_france_forecast', 'dummy']
+load_france.drop('dummy', axis = 1, inplace = True)
+
+# fill nan values with mean of all dataset
+price_france['DA_price_france'].fillna(price_france['DA_price_france'].mean(), inplace = True)
+gen_france['gen_france_forecast'].fillna(gen_france['gen_france_forecast'].mean(), inplace = True)
+load_france['load_france_forecast'].fillna(load_france['load_france_forecast'].mean(), inplace = True)
+
+
+# iterate values to create constant values during the SPs
+l = []
+for i in price_france['DA_price_france']:
+    c = 0
+    while c < 2:
+        l.append(i)
+        c = c + 1
+
+m = []
+for i in gen_france['gen_france_forecast']:
+    c = 0
+    while c < 2:
+        m.append(i)
+        c = c + 1
+
+n = []
+for i in load_france['load_france_forecast']:
+    c = 0
+    while c < 2:
+        n.append(i)
+        c = c + 1
+
+# attach to data frame and save as csv
+france_data = pd.DataFrame({'index': wind_peak.index, 'DA_price_france': l, 'gen_france_forecast': m, 'load_france_forecast': n })
+france_data.set_index('index', inplace = True)
+
+

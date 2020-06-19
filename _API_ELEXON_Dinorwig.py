@@ -35,7 +35,7 @@ data = post_elexon('https://api.bmreports.com/BMRS/DETSYSPRICES/v1?APIKey=b297kk
 
 dino_bin = []              
 
-a = pd.read_csv('DA_Margin_Imb_FORECAST.csv', usecols = [1])
+a = pd.read_csv('.UK_DA_Margin_Imb_forecast.csv', usecols = [1])
 index = a['index'].to_list()
 
 for i in index:
