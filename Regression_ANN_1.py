@@ -13,7 +13,6 @@ from sklearn.model_selection import TimeSeriesSplit
 
 # import data
 data = pd.read_csv('Data_set_1.csv', index_col = 0)
-data_raw = data
 
 # filter max values for offer if required
 print(data.Offers.max()) #max is 2500... no need to filter max values
@@ -60,7 +59,7 @@ y = data.loc[:, 'Offers']
 X.fillna(X.mean(), inplace = True)
 y.fillna(y.mean(), inplace = True)
 
-# divide data into train and test with 10% test data
+# divide data into train and test with 20% test data
 X_train, X_test, y_train, y_test = train_test_split(
          X, y, test_size=0.2, shuffle=False)
 
@@ -121,7 +120,15 @@ plt.show()
 plt.plot(np.array(y_test)[0:48], label = 'y_test', color = 'green', linewidth = 0.4)
 plt.plot(y_pred[0:48], label = 'y_pred', color = 'red', linewidth = 0.4)
 plt.ylabel ('£/MW')
-plt.xlabel('Last 4 months of 2018')
+plt.xlabel('SP of 2018')
+plt.legend()
+plt.title('Test set of Offers and correspondent predictions \nfor the last 4 months of 2018\n')
+plt.show()
+
+plt.plot(np.array(y_test)[0:300], label = 'y_test', color = 'green', linewidth = 0.4)
+plt.plot(y_pred[0:300], label = 'y_pred', color = 'red', linewidth = 0.4)
+plt.ylabel ('£/MW')
+plt.xlabel('SP of 2018')
 plt.legend()
 plt.title('Test set of Offers and correspondent predictions \nfor the last 4 months of 2018\n')
 plt.show()
