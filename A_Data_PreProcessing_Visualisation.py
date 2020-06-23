@@ -55,6 +55,7 @@ print('CORRELATION MATRIX: \n{}'.format(corr_matrix))
 
 
 # MAKE DESIRED CHANGES
+data.drop('Offers', axis = 1, inplace = True)
 data['ratio_offers_vol'] = data['Accepted_offer_vol']/data['Offer_vol']
 data['ratio_bids_vol'] = data['Accepted_bid_vol']/data['Bid_vol']
 
@@ -62,6 +63,8 @@ data.drop('Accepted_offer_vol', axis = 1, inplace = True)
 data.drop('Offer_vol', axis = 1, inplace = True)
 data.drop('Accepted_bid_vol', axis = 1, inplace = True)
 data.drop('Bid_vol', axis = 1, inplace = True)
+
+data = pd.concat([data, offers], axis=1, sort=True)
 
 # save
 
