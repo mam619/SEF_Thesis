@@ -6,12 +6,13 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 
-features = pd.read_csv('WORKSHOP_Ioannis/System Features.csv', index_col = 0)
-offers = pd.read_csv('WORKSHOP_Ioannis/Offers.csv', index_col = 0)
+features = pd.read_csv('Feature_Handeling/Features_ARENKO.csv', index_col = 0)
+features_2 = pd.read_csv('Feature_Handeling/Features_APIs.csv', index_col = 0)
+offers = pd.read_csv('Feature_Handeling/UK__Offers.csv', index_col = 0)
 # bids = pd.read_csv('WORKSHOP_Ioannis/Bids.csv', index_col = 0)
 
 # combine both offers and features together
-data = pd.concat([features, offers], axis=1, sort=True)
+data = pd.concat([features, features_2, offers], axis=1, sort=True)
 
 # shift offers two SP back for realistic predictions
 # data['Offers'] = data['Offers'].shift(-2) NOT SURE IS CORRECT
