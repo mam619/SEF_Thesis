@@ -7,9 +7,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 from sklearn.model_selection import train_test_split, cross_val_score
 from sklearn.preprocessing import StandardScaler
-from sklearn.metrics import mean_squared_error
+from sklearn import metrics
 from sklearn.model_selection import TimeSeriesSplit
-
 
 # import data
 data = pd.read_csv('Data_set_1.csv', index_col = 0)
@@ -17,31 +16,6 @@ data = pd.read_csv('Data_set_1.csv', index_col = 0)
 # filter max values for offer if required
 print(data.Offers.max()) #max is 2500... no need to filter max values
 
-# shift features accordingly
-# forecasted features & offers shift -3 
-data['Offers'] = data['Offers'].shift(-3)
-data['PrevDay'] = data['PrevDay'].shift(-3)
-data['PrevWeek'] = data['PrevWeek'].shift(-3)
-data['APXP'] = data['APXP'].shift(-3)
-data['Rene'] = data['Rene'].shift(-3)
-data['TSDF'] = data['TSDF'].shift(-3)
-data['DRM'] = data['DRM'].shift(-3)
-data['LOLP'] = data['LOLP'].shift(-3)
-data['DA_margin'] = data['DA_margin'].shift(-3)
-data['DA_imb'] = data['DA_imb'].shift(-3)
-data['wind_peak_bin'] = data['wind_peak_bin'].shift(-3)
-data['daily_exchange_rate'] = data['daily_exchange_rate'].shift(-3)
-data['DA_price_france'] = data['DA_price_france'].shift(-3)
-data['load_france_forecast'] = data['load_france_forecast'].shift(-3)
-data['gen_france_forecast'] = data['gen_france_forecast'].shift(-3)
-# actual value shift +1
-data['Ren_R'] = data['Ren_R'].shift(1)
-data['NIV'] = data['NIV'].shift(1)
-data['Im_Pr'] = data['Im_Pr'].shift(1)
-data['In_gen'] = data['In_gen'].shift(1)
-data['ratio_offers_vol'] = data['ratio_offers_vol'].shift(1)
-data['ratio_bids_vol'] = data['ratio_bids_vol'].shift(1)
-data['dino_bin'] = data['dino_bin'].shift(1)
 
 # 2017 & 2018 data
 data = data.loc[data.index > 2017000000, :]
@@ -80,9 +54,9 @@ from keras.wrappers.scikit_learn import KerasRegressor
 # initialises regressor with 2 hidden layers
 regressor = Sequential() 
 regressor.add(Dense(output_dim = 11, init = 'normal', activation = 'relu', input_dim = 21))
-# classifier.add(Dropout(p = 0.1))
+regressor.add(Dropout(p = 0.1))
 regressor.add(Dense(output_dim = 11, init = 'normal', activation = 'relu'))
-# classifier.add(Dropout(p = 0.1))
+regressor.add(Dropout(p = 0.1))
 regressor.add(Dense(output_dim = 1, init = 'normal', activation = 'linear'))
 
 # compiling the ANN
@@ -102,11 +76,15 @@ plt.xlabel('epoch')
 plt.legend(['train', 'validation'], loc='upper left')
 plt.show()
 
-# predicting from y_test
+# from training last mae values around 24.35; mse: 1910 (rmse = 43.7)
+
+# predicting from y_test:
 y_pred = regressor.predict(X_test)
 
-mse_average = mean_squared_error(y_test, y_pred)# 0.241
-rmse = np.sqrt(mse_average) # 0.491
+# metrics on test set:
+mse = metrics.mean_squared_error(y_test, y_pred)# 2566.43
+rmse = np.sqrt(mse) # 50.66
+mae = metrics.mean_absolute_error(y_test, y_pred) # 31.81
 
 # plot results
 plt.plot(np.array(y_test), label = 'y_test', color = 'green', linewidth = 0.4)
@@ -133,8 +111,14 @@ plt.legend()
 plt.title('Test set of Offers and correspondent predictions \nfor the last 4 months of 2018\n')
 plt.show()
 
-# Add CV
-def build_classifier():
+# Apply cross validation
+
+tscv = TimeSeriesSplit(n_splits = 11)
+scores = cross_val_score(regressor, X_train, y_train, cv = tscv, score = ['neg_mean_squared_error', 'neg_mean_absolute_error' ])
+
+'''
+# Add CV & Hyperparameterisation
+def build_meg(n_hidden = 1, n_neuros = 30, learning_rate = ):
     regressor = Sequential() # Initialises
     regressor.add(Dense(output_dim = 11, init = 'normal', activation = 'relu', input_dim = 21))
     regressor.add(Dense(output_dim = 11, init = 'normal', activation = 'relu'))
@@ -142,11 +126,18 @@ def build_classifier():
     regressor.compile(optimizer = 'adam', loss = 'mse', metrics = ['mse', 'mae'])
     return regressor
 
+def build_model(n_hidden = 1, n_neurons = 30, learning_rate = 3e-3, input_shape = [8]):
+    model = keras.models.Sequential()
+    model.add(keras.layers.InputLayer(input_shape = input_shape))
+    for layer in range(n_hidden):
+        model.add(keras.layers.Dense(n_neurons, activation = 'relu'))
+    model.add(keras.layers.Dense(1))
+    optimizer = keras.optimizers.SGD(lr = learning_rate)
+    model.compile(loss = 'mse', optimizer = optimizer)
+    return model
+
 tscv = TimeSeriesSplit(n_splits=11)
 regressor = KerasRegressor(build_fn = build_classifier, batch_size = 10, epochs = 100)
 accuracies = cross_val_score(estimator = regressor,X = X_train, y = y_train, cv = tscv, n_jobs = -1)
-
-
-
-
+'''
 

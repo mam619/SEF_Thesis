@@ -6,19 +6,13 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 
-features = pd.read_csv('Feature_Handeling/Features_ARENKO.csv', index_col = 0)
-features_2 = pd.read_csv('Feature_Handeling/Features_APIs.csv', index_col = 0)
-offers = pd.read_csv('Feature_Handeling/UK__Offers.csv', index_col = 0)
+# import data
+data = pd.read_csv('Data_set_1.csv', index_col = 0)
 
-# combine both offers and features together
-data = pd.concat([features, features_2, offers], axis=1, sort=True)
+# filter max values for offer if required
+print(data.Offers.max()) #max is 2500... no need to filter max values
 
-# shift offers two SP back for realistic predictions
-# data['Offers'] = data['Offers'].shift(-2) - NOTE SURE IS CORRECT
-
-# filter any offer higher than 6000 out
-offers = offers[offers < 6000]
-
+data.fillna(data.mean(), inplace = True)
 
 # collect data for each year
 data18 = data.loc[data.index > 2018000000, :]
