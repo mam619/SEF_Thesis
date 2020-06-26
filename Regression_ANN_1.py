@@ -5,7 +5,7 @@
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
-from sklearn.model_selection import train_test_split, cross_val_score
+from sklearn.model_selection import train_test_split, cross_validate, cross_val_predict
 from sklearn.preprocessing import StandardScaler
 from sklearn import metrics
 from sklearn.model_selection import TimeSeriesSplit
@@ -25,7 +25,7 @@ data.reset_index(inplace = True)
 data.drop('index', axis = 1, inplace = True)
 
 # Divide features and labels
-X = data.iloc[:, 0:21]
+X = data.iloc[:, 0:20]
 y = data.loc[:, 'Offers']
 
 # Fill nan values (BEFORE OR AFTER TEST, TRAIN SPLIT!!!)
@@ -46,23 +46,23 @@ X_test = sc_X.transform(X_test)
 
 # ANN design
 # importing the Keras libraries and packages
+import keras
 from keras.models import Sequential # to initialise the NN
 from keras.layers import Dense # to create layers
 from keras.layers import Dropout
 from keras.wrappers.scikit_learn import KerasRegressor
-
+from sklearn.model_selection import RandomizedSearchCV
+'''
 # initialises regressor with 2 hidden layers
 regressor = Sequential() 
-regressor.add(Dense(output_dim = 11, init = 'normal', activation = 'relu', input_dim = 21))
+regressor.add(Dense(output_dim = 11, init = 'normal', activation = 'relu', input_dim = 20))
 regressor.add(Dropout(p = 0.1))
 regressor.add(Dense(output_dim = 11, init = 'normal', activation = 'relu'))
 regressor.add(Dropout(p = 0.1))
 regressor.add(Dense(output_dim = 1, init = 'normal', activation = 'linear'))
 
-# compiling the ANN
 regressor.compile(optimizer = 'adam', loss = 'mse', metrics = ['mse', 'mae'])
 
-# fitting the ANN to the training set
 hist = regressor.fit(X_train, y_train, batch_size = 10, epochs = 80, validation_split=0.2)
 
 # =============================================================================
@@ -76,15 +76,15 @@ plt.xlabel('epoch')
 plt.legend(['train', 'validation'], loc='upper left')
 plt.show()
 
-# from training last mae values around 24.35; mse: 1910 (rmse = 43.7)
+# from training last mae values around 28.7792; mse: 2147.2344 (rmse = 43.7)
 
 # predicting from y_test:
 y_pred = regressor.predict(X_test)
 
 # metrics on test set:
-mse = metrics.mean_squared_error(y_test, y_pred)# 2566.43
-rmse = np.sqrt(mse) # 50.66
-mae = metrics.mean_absolute_error(y_test, y_pred) # 31.81
+mse = metrics.mean_squared_error(y_test, y_pred)# 2181.60
+rmse = np.sqrt(mse) # 46.70
+mae = metrics.mean_absolute_error(y_test, y_pred) # 26.48
 
 # plot results
 plt.plot(np.array(y_test), label = 'y_test', color = 'green', linewidth = 0.4)
@@ -111,33 +111,81 @@ plt.legend()
 plt.title('Test set of Offers and correspondent predictions \nfor the last 4 months of 2018\n')
 plt.show()
 
-# Apply cross validation
 
-tscv = TimeSeriesSplit(n_splits = 11)
-scores = cross_val_score(regressor, X_train, y_train, cv = tscv, score = ['neg_mean_squared_error', 'neg_mean_absolute_error' ])
+# Apply cross validation - cross_validate
 
-'''
-# Add CV & Hyperparameterisation
-def build_meg(n_hidden = 1, n_neuros = 30, learning_rate = ):
-    regressor = Sequential() # Initialises
-    regressor.add(Dense(output_dim = 11, init = 'normal', activation = 'relu', input_dim = 21))
+def regressor_cv_():
+    regressor = Sequential() 
+    regressor.add(Dense(output_dim = 11, init = 'normal', activation = 'relu', input_dim = 20))
+    regressor.add(Dropout(p = 0.1))
     regressor.add(Dense(output_dim = 11, init = 'normal', activation = 'relu'))
+    regressor.add(Dropout(p = 0.1))
     regressor.add(Dense(output_dim = 1, init = 'normal', activation = 'linear'))
     regressor.compile(optimizer = 'adam', loss = 'mse', metrics = ['mse', 'mae'])
     return regressor
 
-def build_model(n_hidden = 1, n_neurons = 30, learning_rate = 3e-3, input_shape = [8]):
-    model = keras.models.Sequential()
-    model.add(keras.layers.InputLayer(input_shape = input_shape))
+tscv = TimeSeriesSplit(n_splits = 11)
+regressor_cv = KerasRegressor(build_fn = regressor_cv_, batch_size = 10, epochs = 100)
+scores = cross_validate(regressor_cv, X_train, y_train, cv = tscv, scoring = ['neg_mean_squared_error', 'neg_mean_absolute_error' ], n_jobs = -1)
+
+# all values increase form previous calculus which makes sense!
+scores['test_neg_mean_absolute_error'].mean() # 28.39
+scores['test_neg_mean_absolute_error'].std() # 6.03
+scores['test_neg_mean_squared_error'].mean() # 2300.97
+scores['test_neg_mean_squared_error'].std() # 1701.54
+# rmse mean 47.95
+# rmse std 41
+
+y_pred_1 = regressor_cv.predict(X_test)
+
+# metrics on test set:
+mse_cv = metrics.mean_squared_error(y_test, y_pred_1)# 2181.60
+rmse_cv = np.sqrt(mse) # 46.70
+mae_cv = metrics.mean_absolute_error(y_test, y_pred_1) # 26.48
+'''
+# =============================================================================
+# # Apply cross validation - cross_val_predict
+# 
+# predictions = cross_val_predict(regressor_cv, X, y, cv = tscv, n_jobs = -1)
+# 
+# fig, ax = plt.subplots()
+# ax.scatter(y, predictions, edgecolors=(0, 0, 0))
+# ax.plot([y.min(), y.max()], [y.min(), y.max()], 'k--', lw=4)
+# =============================================================================
+
+
+# Add CV & Hyperparameter tunning
+
+def regressor_param(optimizer = 'adam', n_hidden = 1, n_neurons = 11, activation_fun = 'relu'):
+    model = Sequential()
+    model.add(keras.layers.Dense(output_dim = n_neurons, init = 'uniform', activation = activation_fun, input_dim = 20))
     for layer in range(n_hidden):
-        model.add(keras.layers.Dense(n_neurons, activation = 'relu'))
-    model.add(keras.layers.Dense(1))
-    optimizer = keras.optimizers.SGD(lr = learning_rate)
+        model.add(keras.layers.Dense(n_neurons, activation = activation_fun))
+    model.add(Dense(output_dim = 1, init = 'normal', activation = 'linear'))
     model.compile(loss = 'mse', optimizer = optimizer)
     return model
 
-tscv = TimeSeriesSplit(n_splits=11)
-regressor = KerasRegressor(build_fn = build_classifier, batch_size = 10, epochs = 100)
-accuracies = cross_val_score(estimator = regressor,X = X_train, y = y_train, cv = tscv, n_jobs = -1)
-'''
+regressor = KerasRegressor(build_fn = regressor_param)
 
+# Dictionary to include the parameters in GridSearch
+parameters = {'n_hidden': [1, 2, 3, 4, 5],
+              'n_neurons': np.arange(11,80),
+              'optimizer': ['adam', 'rmsprop', 'SGD'],
+              'activation_fun': ['relu', 'sigmoid', 'tanh']
+              }
+
+tscv = TimeSeriesSplit(n_splits=11)
+
+rnd_search_cv = RandomizedSearchCV(estimator = regressor,
+                                   param_distributions = parameters, 
+                                   n_iter = 20, 
+                                   scoring = 'neg_mean_squared_error',
+                                   cv = tscv)
+
+rnd_search_cv.fit(X_train, y_train, batch_size = 10, epochs = 200)
+
+# FIND BEST PARAMETERS
+
+best_params = rnd_search_cv.best_params_
+best_score = rnd_search_cv.best_score_
+model_rnd_search = rnd_search_cv.best_estimator_.model
