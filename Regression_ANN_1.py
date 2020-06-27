@@ -16,9 +16,9 @@ data = pd.read_csv('Data_set_1.csv', index_col = 0)
 # filter max values for offer if required
 print(data.Offers.max()) #max is 2500... no need to filter max values
 
-
 # 2017 & 2018 data
 data = data.loc[data.index > 2017000000, :]
+data = data.loc[data.index < 2018123101, :]
 
 # reset index
 data.reset_index(inplace = True)
@@ -32,6 +32,9 @@ y = data.loc[:, 'Offers']
 # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 X.fillna(X.mean(), inplace = True)
 y.fillna(y.mean(), inplace = True)
+
+X = X.astype('float64')
+X = X.round(20)
 
 # divide data into train and test with 20% test data
 X_train, X_test, y_train, y_test = train_test_split(
@@ -153,6 +156,9 @@ mae_cv = metrics.mean_absolute_error(y_test, y_pred_1) # 26.48
 # ax.plot([y.min(), y.max()], [y.min(), y.max()], 'k--', lw=4)
 # =============================================================================
 
+# possible debug
+X_train = np.nan_to_num(X_train)
+X_test = np.nan_to_num(X_test)
 
 # Add CV & Hyperparameter tunning
 
@@ -186,6 +192,8 @@ rnd_search_cv.fit(X_train, y_train, batch_size = 10, epochs = 200)
 
 # FIND BEST PARAMETERS
 
-best_params = rnd_search_cv.best_params_
-best_score = rnd_search_cv.best_score_
-model_rnd_search = rnd_search_cv.best_estimator_.model
+# =============================================================================
+# best_params = rnd_search_cv.best_params_
+# best_score = rnd_search_cv.best_score_
+# model_rnd_search = rnd_search_cv.best_estimator_.model
+# =============================================================================
