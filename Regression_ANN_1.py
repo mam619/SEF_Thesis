@@ -5,6 +5,7 @@
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
+import time
 from sklearn.model_selection import train_test_split, cross_validate, cross_val_predict
 from sklearn.preprocessing import StandardScaler
 from sklearn import metrics
@@ -160,7 +161,7 @@ mae_cv = metrics.mean_absolute_error(y_test, y_pred_1) # 26.48
 X_train = np.nan_to_num(X_train)
 X_test = np.nan_to_num(X_test)
 
-# Add CV & Hyperparameter tunning
+# Add CV & Hyperparameter tunning with ReLu
 
 def regressor_param(optimizer = 'adam', n_hidden = 1, n_neurons = 11, activation_fun = 'relu'):
     model = Sequential()
@@ -171,24 +172,47 @@ def regressor_param(optimizer = 'adam', n_hidden = 1, n_neurons = 11, activation
     model.compile(loss = 'mse', optimizer = optimizer)
     return model
 
+'''
+# Add CV & Hyperparameter tunning with LeakyRelu
+
+def regressor_param(optimizer = 'adam', n_hidden = 1, n_neurons = 11):
+    model = Sequential()
+    model.add(keras.layers.Dense(output_dim = n_neurons, init = 'uniform', input_dim = 20))
+    model.add(keras.layers.LeakyReLU(alpha = 0.2))
+    for layer in range(n_hidden):
+        model.add(keras.layers.Dense(n_neurons))
+        model.add(keras.layers.LeakyReLU(alpha = 0.2))
+    model.add(Dense(output_dim = 1, init = 'normal', activation = 'linear'))
+    model.compile(loss = 'mse', optimizer = optimizer)
+    return model
+'''
+
 regressor = KerasRegressor(build_fn = regressor_param)
 
 # Dictionary to include the parameters in GridSearch
-parameters = {'n_hidden': [1, 2, 3, 4, 5],
-              'n_neurons': np.arange(11,80),
-              'optimizer': ['adam', 'rmsprop', 'SGD'],
-              'activation_fun': ['relu', 'sigmoid', 'tanh']
+parameters = {'n_hidden': [1, 2, 3, 4, 5, 6],
               }
 
-tscv = TimeSeriesSplit(n_splits=11)
+tscv = TimeSeriesSplit(n_splits = 4)
+n_iter_search = 20
 
 rnd_search_cv = RandomizedSearchCV(estimator = regressor,
                                    param_distributions = parameters, 
-                                   n_iter = 20, 
+                                   n_iter = n_iter_search, 
                                    scoring = 'neg_mean_squared_error',
-                                   cv = tscv)
+                                   cv = tscv,
+                                   error_score=0)
+start = time.time()
 
-rnd_search_cv.fit(X_train, y_train, batch_size = 10, epochs = 200)
+early_stopping_cb = keras.callbacks.EarlyStopping(patience = 10,
+                                                  restore_best_weights = True)
+checkpoint_cb = keras.callbacks.ModelCheckpoint("my_keras_model.h5")
+
+rnd_search_cv.fit(X_train, y_train, batch_size = 10, epochs = 20,
+                  callbacks = [checkpoint_cb, early_stopping_cb])
+
+print("RandomizedSearchCV took %.2f seconds for %d candidates"
+      " parameter settings." % ((time.time() - start), n_iter_search))
 
 # FIND BEST PARAMETERS
 
@@ -197,3 +221,5 @@ rnd_search_cv.fit(X_train, y_train, batch_size = 10, epochs = 200)
 # best_score = rnd_search_cv.best_score_
 # model_rnd_search = rnd_search_cv.best_estimator_.model
 # =============================================================================
+
+model = keras.models.load_model("my_keras_models.h5")
