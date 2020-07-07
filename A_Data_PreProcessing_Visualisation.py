@@ -18,7 +18,7 @@ offers = offers[offers < 3000]
 data = pd.concat([Features_final, offers], axis=1, sort=True)
 
 # quantify nan values 
-print('Missing values:\n {}'.format(data.isna().sum()))
+print('Missing values (%):\n {}'.format((data.isna().sum()/data.count())*100))
 
 # collect data for each year
 data18 = data.loc[data.index > 2018000000, :]
@@ -112,3 +112,22 @@ corr_matrix_3 = data.corr()
 # Im_France became more correlated with Offer than load or generation!
 
 data.to_csv('Data_set_1.csv')
+
+# DRM is very correlated with DA_margin and other features (just a bit less)
+data.drop('DRM', axis = 1, inplace = True)
+
+# FILTERED EVERYTHING OUT WITH CORRELATIONS SMALLER TO 0.05
+
+# wind peak binary is very uncorrelated with all features
+data.drop('wind_peak_bin', axis = 1, inplace = True)
+# little correlated with Offers
+data.drop('daily_exchange_rate', axis = 1, inplace = True)
+data.drop('dino_bin', axis = 1, inplace = True)
+data.drop('ratio_bids_vol', axis = 1, inplace = True)
+
+# fourth correlation matrix 
+corr_matrix_4 = data.corr()
+
+data.to_csv('Data_set_1_smaller.csv')
+
+
