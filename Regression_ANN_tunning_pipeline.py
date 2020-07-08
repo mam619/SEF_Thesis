@@ -13,7 +13,7 @@ config = tf.compat.v1.ConfigProto( device_count = {'GPU': 1 , 'CPU': 8} )
 sess = tf.compat.v1.Session(config=config) 
 keras.backend.set_session(sess)
 from keras.wrappers.scikit_learn import KerasRegressor
-from keras.layers import Dense, BatchNormalization()
+from keras.layers import Dense, BatchNormalization
 from keras import Sequential
 
 # import data
