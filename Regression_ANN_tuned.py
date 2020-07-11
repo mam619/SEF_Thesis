@@ -17,7 +17,7 @@ data = pd.read_csv('Data_set_1_smaller.csv', index_col = 0)
 print(data.Offers.max()) #max is 2500... no need to filter max values
 
 # 2017 & 2018 data
-data = data.loc[data.index > 2017000000, :]
+data = data.loc[data.index > 2018050000, :]
 
 # reset index
 data.reset_index(inplace = True)
@@ -60,21 +60,100 @@ def regressor_tunning(n_hidden = 2,
                       kernel_initializer = "he_normal",
                       bias_initializer = initializers.Ones()):
     model = Sequential()
-    model.add(Dense(output_dim = n_neurons, input_dim = 15))
+    model.add(Dense(units = n_neurons, input_dim = 15))
     model.add(keras.layers.LeakyReLU(alpha = 0.2))
-    model.add(Dropout(p = 0.1))
+    model.add(Dropout(rate = 0.1))
     for layer in range(n_hidden):
         model.add(Dense(n_neurons))
         model.add(keras.layers.LeakyReLU(alpha = 0.2))
-        model.add(Dropout(p = 0.1))
-    model.add(Dense(output_dim = 1, activation = 'linear'))
+        model.add(Dropout(rate = 0.1))
+    model.add(Dense(units = 1, activation = 'linear'))
     model.compile(loss = 'mse', optimizer = optimizer, metrics = ['mse', 'mae'])
     return model
 
-tscv = TimeSeriesSplit(n_splits = 11)
+tscv = TimeSeriesSplit(n_splits = 7)
 
-# DO CROSS VALIDATION
-# TEST ON TRAINING SET
-# FIND ERROR FOR BOTH ERROR AND NO ERROR SECTIONS
-# DO PLOTS
-# SEE HOW RESULTS CHANGE WITH DECREASE IN TRAINING DATA SET
+hist_list = pd.DataFrame()
+count = 1
+
+regressor = regressor_tunning()
+
+for train_index, test_index in tscv.split(X_train):
+      X_train_split, X_test_split = X_train[train_index], X_train[test_index]
+      y_train_split, y_test_split = y_train[train_index], y_train[test_index]
+      hist = regressor.fit(X_train_split, y_train_split, batch_size = 10, epochs = 80)
+      hist_list = hist_list.append(hist.history, ignore_index = True)
+      print(count)
+      count = count + 1
+
+y_pred = regressor.predict(X_test)
+
+from sklearn.metrics import mean_squared_error as mse
+from sklearn.metrics import mean_absolute_error as mae
+
+rmse_error = mse(y_test, y_pred, squared = False)
+mse_error = mse(y_test, y_pred) # 1479.61335
+mae_error = mae(y_test, y_pred) # 23.1525
+
+# =============================================================================
+# Metrics evaluation on spike regions
+# =============================================================================
+
+y_spike_occ = pd.read_csv('Spike_binary_1std.csv', usecols = [6])
+
+# create array same size as y_test
+y_spike_occ = y_spike_occ.iloc[- len(y_test):]
+y_spike_occ = pd.Series(y_spike_occ.iloc[:,0]).values
+
+# =============================================================================
+# # smal adjustment
+# y_test = y_test.where(y_test > 0)
+# y_test.fillna('0.01', inplace = True)
+# y_test = y_test.values
+# =============================================================================
+
+# select y_pred and y_test only for regions with spikes
+y_test_spike = (y_test.T * y_spike_occ).T
+y_pred_spike = (y_pred.T * y_spike_occ).T
+y_test_spike = y_test_spike[y_test_spike != 0]
+y_pred_spike = y_pred_spike[y_pred_spike != 0]
+
+# calculate metric
+rmse_spike = mse(y_test_spike, y_pred_spike, squared = False)
+mse_spike = mse(y_test_spike, y_pred_spike)
+mae_spike = mae(y_test_spike, y_pred_spike)
+
+# =============================================================================
+# Metric evaluation on normal regions
+# =============================================================================
+
+# inverse y_spike_occ so the only normal occurences are chosen
+y_normal_occ = (y_spike_occ - 1) * (-1)
+
+# sanity check
+y_normal_occ.sum() + y_spike_occ.sum() # gives the correct total 
+
+# select y_pred and y_test only for normal regions
+y_test_normal = (y_test.T * y_normal_occ).T
+y_pred_normal = (y_pred.T * y_normal_occ).T
+y_test_normal = y_test_normal[y_test_normal != 0]
+y_pred_normal = y_pred_normal[y_pred_normal != 0]
+
+# calculate metric
+rmse_normal = mse(y_test_normal, y_pred_normal, squared = False)
+mse_normal = mse(y_test_normal, y_pred_normal)
+mae_normal = mae(y_test_normal, y_pred_normal)
+
+# Save
+
+results = pd.DataFrame({'rmse': rmse_error,
+                        'mae': mae_error, 
+                        'mse': mse_error, 
+                        'rmse_spike': rmse_spike, 
+                        'rmse_normal': rmse_normal,
+                        'mae_spike': mae_spike,
+                        'mae_normal': mae_normal,
+                        'mse_spike': mse_spike,
+                        'mse_normal': mse_normal}, index = ['ANN'])
+
+results.to_csv('Results_ANN.csv')
