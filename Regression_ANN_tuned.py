@@ -17,7 +17,7 @@ data = pd.read_csv('Data_set_1_smaller.csv', index_col = 0)
 print(data.Offers.max()) #max is 2500... no need to filter max values
 
 # 2017 & 2018 data
-data = data.loc[data.index > 2018050000, :]
+data = data.loc[data.index > 201700000, :]
 
 # reset index
 data.reset_index(inplace = True)
@@ -107,9 +107,9 @@ y_spike_occ = pd.Series(y_spike_occ.iloc[:,0]).values
 
 # =============================================================================
 # # smal adjustment
-# y_test = y_test.where(y_test > 0)
-# y_test.fillna('0.01', inplace = True)
-# y_test = y_test.values
+y_test = y_test.where(y_test == 0)
+y_test.fillna('0.001', inplace = True)
+y_test = y_test.values
 # =============================================================================
 
 # select y_pred and y_test only for regions with spikes
