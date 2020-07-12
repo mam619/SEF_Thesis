@@ -48,7 +48,7 @@ from sklearn.model_selection import cross_val_score
 
 def regressor_tunning(n_hidden = 1, n_neurons = 11, optimizer = 'adam'):
     model = Sequential()
-    model.add(LSTM(units = 50, return_sequences = True, input_shape = (15,1)))
+    model.add(LSTM(units = 50, return_sequences = True, input_shape = (98,1)))
     model.add(Dropout(0.2))
     for layer in range(n_hidden):
         model.add(LSTM(units = 50, return_sequences = True))
