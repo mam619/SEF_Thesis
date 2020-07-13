@@ -12,7 +12,7 @@ data = pd.read_csv('Data_set_1.csv', index_col = 0)
 # filter max values for offer if required
 print(data.Offers.max()) #max is 2500... no need to filter max values
 
-data.fillna(data.mean(), inplace = True)
+data.fillna(method = 'ffill', inplace = True)
 
 # collect data for each year
 data18 = data.loc[data.index > 2018000000, :]
@@ -126,9 +126,9 @@ plt.xticks(np.arange(0, 62, 2))
 plt.scatter(spike_var_18[spike_var_18['num_spikes'] == max_spike_18].window, max_spike_18 , color = 'red', label = 'Maximum values')
 plt.text(spike_var_18[spike_var_18['num_spikes'] == max_spike_18].window + 0.5, max_spike_18 + 0.5, '({},{})'.format(spike_var_18[spike_var_18['num_spikes'] == max_spike_18].window.iloc[0], max_spike_18))
 plt.scatter(spike_var_17[spike_var_17['num_spikes'] == max_spike_17].window, max_spike_17 , color = 'red')
-plt.text(spike_var_17[spike_var_17['num_spikes'] == max_spike_17].window + 0.5, max_spike_17 + 0.5, '({},{})'.format(spike_var_17[spike_var_17['num_spikes'] == max_spike_17].window.iloc[0], max_spike_17))
+plt.text(spike_var_17[spike_var_17['num_spikes'] == max_spike_17].window + 1, max_spike_17 - 5, '({},{})'.format(spike_var_17[spike_var_17['num_spikes'] == max_spike_17].window.iloc[0], max_spike_17))
 plt.scatter(spike_var_16[spike_var_16['num_spikes'] == max_spike_16].window, max_spike_16 , color = 'red')
-plt.text(spike_var_16[spike_var_16['num_spikes'] == max_spike_16].window + 0.5, max_spike_16 + 0.5, '({},{})'.format(spike_var_16[spike_var_16['num_spikes'] == max_spike_16].window.iloc[0], max_spike_16))
+plt.text(spike_var_16[spike_var_16['num_spikes'] == max_spike_16].window + 0.5, max_spike_16 + 1, '({},{})'.format(spike_var_16[spike_var_16['num_spikes'] == max_spike_16].window.iloc[0], max_spike_16))
 plt.title('Number of SP with spike occurances according\n to recursive filter (RF) for different \nrolling windows for three different years\n', fontsize= 15)
 plt.minorticks_on() #required for the minor grid
 plt.grid(which = 'major', linestyle ='-', linewidth = '0.25', color = 'black')

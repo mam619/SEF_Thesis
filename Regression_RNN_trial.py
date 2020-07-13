@@ -25,8 +25,8 @@ data.drop('index', axis = 1, inplace = True)
 X = data.iloc[:, 15]
 y = data.loc[:, 'Offers']
 
-X.fillna(X.mean(), inplace = True)
-y.fillna(y.mean(), inplace = True)
+X.fillna(method = 'ffill', inplace = True)
+y.fillna(method = 'ffill', inplace = True)
 
 X = X.astype('float64')
 X = X.round(20)
