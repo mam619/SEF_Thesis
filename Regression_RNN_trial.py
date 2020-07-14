@@ -10,30 +10,54 @@ import pandas as pd
 from sklearn.model_selection import train_test_split, TimeSeriesSplit
 from sklearn.preprocessing import StandardScaler
 
-
 # import data
 data = pd.read_csv('Data_set_1_smaller.csv', index_col = 0)
 
 # 2018 data
-data = data.loc[data.index > 2018060000, :]
+data = data.loc[data.index > 2018000000, :]
 
 # reset index
 data.reset_index(inplace = True)
 data.drop('index', axis = 1, inplace = True)
 
+# fill nan values
+data.fillna(method = 'ffill', inplace = True)
+
 # divide features and labels
-X = data.iloc[:, 15]
-y = data.loc[:, 'Offers']
+X_initial = data.iloc[:, 15].values # turns it into array
+y_initial = data.loc[:, 'Offers'].values # turns it into array
 
-X.fillna(method = 'ffill', inplace = True)
-y.fillna(method = 'ffill', inplace = True)
+#X = X.astype('float64')
+#X = X.round(20)
 
-X = X.astype('float64')
-X = X.round(20)
+def cut_data(X, y, steps):
+    total = len(y)
+    length = float(total/steps) * steps
+    X = X[:length, :]
+    y = y[:length]
+    return X, y
+
+def split_data(X, y, steps):
+    X_, y_ = list(), list()
+    for i in range(len(y)):
+        # last index
+        last_indx = i + steps
+        # check if we are beyond dataset length
+        if last_indx > len(y):
+            break
+        # gather X and y patterns
+        X_.append(X[i:last_indx, :])
+        y_.append(y[last_indx])
+    return array(X_), array(y_)
+
+steps = 96
+
+X, y = cut_data(X_initial, y_initial, steps)
+X, y = split_data(X_initial, y_initial, steps)
 
 # divide data into train and test with 20% test data
-X_train, X_test, y_train, y_test = train_test_split(
-         X, y, test_size=0.2, shuffle=False)
+# X_train, X_test, y_train, y_test = train_test_split(
+#          X, y, test_size=0.2, shuffle=False)
 
 # feature scaling 
 sc_X = StandardScaler()
@@ -41,7 +65,7 @@ X_train = sc_X.fit_transform(X_train)
 X_test = sc_X.transform(X_test)
 
 # LSTM design
-from keras.layers import Dense, LSTM, Dropout
+from keras.layers import Dense, LSTM
 from keras.models import Sequential
 from keras.wrappers.scikit_learn import KerasRegressor
 from sklearn.model_selection import cross_val_score

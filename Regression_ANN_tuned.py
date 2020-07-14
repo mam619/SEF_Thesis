@@ -27,7 +27,7 @@ rmse_spi = []
 data = pd.read_csv('Data_set_1_smaller.csv', index_col = 0)
 
 # 3 months
-data = data.loc[data.index > 2018000000, :]
+data = data.loc[data.index > 2018090000, :]
 
 # reset index
 data.reset_index(inplace = True)
@@ -45,7 +45,7 @@ X = X.round(20)
 
 # divide data into train and test with 20% test data
 X_train, X_test, y_train, y_test = train_test_split(
-         X, y, test_size = 0.132, shuffle=False)
+         X, y, test_size = 0.15, shuffle=False)
 
 # feature scaling
 sc_X = MinMaxScaler()
@@ -81,7 +81,7 @@ def regressor_tunning(n_hidden = 5,
     model.compile(loss = 'mse', optimizer = optimizer, metrics = ['mse', 'mae'])
     return model
 
-tscv = TimeSeriesSplit(n_splits = 45)
+tscv = TimeSeriesSplit(n_splits = 10)
 
 hist_list = pd.DataFrame()
 count = 1
@@ -189,4 +189,3 @@ results = pd.DataFrame({'rmse_general': rmse_gen,
                     
                         'mae_normal': mae_nor})
 
-#results.to_csv('Results_ANN.csv')
