@@ -71,11 +71,11 @@ def regressor_tunning(n_hidden = 5,
     model = Sequential()
     model.add(Dense(units = n_neurons, input_dim = 15))
     model.add(keras.layers.LeakyReLU(alpha = 0.2))
-    model.add(Dropout(rate = 0.1))
+    model.add(Dropout(rate = 0.3))
     for layer in range(n_hidden):
         model.add(Dense(units = n_neurons))
         model.add(keras.layers.LeakyReLU(alpha = 0.2))
-        model.add(Dropout(rate = 0.1))
+        model.add(Dropout(rate = 0.3))
     model.add(Dense(units = 1, activation = 'linear'))
     optimizer = optimizers.Adamax(lr = 0.001)
     model.compile(loss = 'mse', optimizer = optimizer, metrics = ['mse', 'mae'])
@@ -91,7 +91,7 @@ regressor = regressor_tunning()
 for train_index, test_index in tscv.split(X_train):
     X_train_split, X_test_split = X_train[train_index], X_train[test_index]
     y_train_split, y_test_split = y_train[train_index], y_train[test_index]
-    hist = regressor.fit(X_train_split, y_train_split, batch_size = 10, epochs = 100)
+    hist = regressor.fit(X_train_split, y_train_split,  shuffle = False, batch_size = 10, epochs = 100)
     hist_list = hist_list.append(hist.history, ignore_index = True)
     print(count)
     count = count + 1
