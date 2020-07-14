@@ -1,14 +1,9 @@
 # =============================================================================
-# First RNN structure
+# RNN structure
 # =============================================================================
 
-# data preprocessing
-
-import numpy as np
-import matplotlib.pyplot as plt
 import pandas as pd
-from sklearn.model_selection import train_test_split, TimeSeriesSplit
-from sklearn.preprocessing import StandardScaler
+import numpy as np
 
 # import data
 data = pd.read_csv('Data_set_1_smaller.csv', index_col = 0)
@@ -24,46 +19,51 @@ data.drop('index', axis = 1, inplace = True)
 data.fillna(method = 'ffill', inplace = True)
 
 # divide features and labels
-X_initial = data.iloc[:, 15].values # turns it into array
-y_initial = data.loc[:, 'Offers'].values # turns it into array
+X = data.iloc[:, 0:15] .values # turns it into an array
+y = data.loc[:, 'Offers'].values # turns it into an array
+
+from sklearn.model_selection import train_test_split
+
+# divide data into train and test 
+X_train, X_test, y_train, y_test = train_test_split(
+         X, y, test_size = 0.15, shuffle=False)
+
+from sklearn.preprocessing import MinMaxScaler
+
+# feature scaling 
+sc_X = MinMaxScaler()
+X_train_ = sc_X.fit_transform(X_train)
+X_test_ = sc_X.transform(X_test)
 
 #X = X.astype('float64')
 #X = X.round(20)
 
+# function to cut data
 def cut_data(X, y, steps):
     total = len(y)
-    length = float(total/steps) * steps
+    length = int(total/steps) * steps
     X = X[:length, :]
     y = y[:length]
     return X, y
 
+# function to split data into correct shape
 def split_data(X, y, steps):
     X_, y_ = list(), list()
-    for i in range(len(y)):
-        # last index
-        last_indx = i + steps
-        # check if we are beyond dataset length
-        if last_indx > len(y):
-            break
-        # gather X and y patterns
-        X_.append(X[i:last_indx, :])
-        y_.append(y[last_indx])
-    return array(X_), array(y_)
+    for i in range(steps, len(y)):
+        X_.append(X[i - steps : i, :])
+        y_.append(y[i]) 
+    return np.array(X_), np.array(y_)
 
 steps = 96
 
-X, y = cut_data(X_initial, y_initial, steps)
-X, y = split_data(X_initial, y_initial, steps)
+X_train, y_train = cut_data(X_train, y_train, steps)
+X_test, y_test = cut_data(X_test, y_test, steps)
 
-# divide data into train and test with 20% test data
-# X_train, X_test, y_train, y_test = train_test_split(
-#          X, y, test_size=0.2, shuffle=False)
+X_train, y_train = split_data(X_train, y_train, steps)
+X_test, y_test = split_data(X_test, y_test, steps)
 
-# feature scaling 
-sc_X = StandardScaler()
-X_train = sc_X.fit_transform(X_train)
-X_test = sc_X.transform(X_test)
 
+'''
 # LSTM design
 from keras.layers import Dense, LSTM
 from keras.models import Sequential
@@ -90,3 +90,5 @@ accuracies = cross_val_score(estimator = LSTM_reg, X = X_train, y = y_train, cv 
 mean = accuracies.mean()
 variance = accuracies.std()
 LSTM_reg.predict(X_test)
+
+'''
