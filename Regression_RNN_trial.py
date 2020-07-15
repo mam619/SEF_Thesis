@@ -4,6 +4,8 @@
 
 import pandas as pd
 import numpy as np
+import matplotlib.pyplot as plt
+
 
 # import data
 data = pd.read_csv('Data_set_1_smaller.csv', index_col = 0)
@@ -31,6 +33,10 @@ from sklearn.model_selection import train_test_split
 X_train, X_test, y_train, y_test = train_test_split(
          X, y, test_size = 0.15, shuffle=False)
 
+# divide data into train and validation
+X_train, X_val, y_train, y_val = train_test_split(
+         X_train, y_train, test_size = 0.3, shuffle=False)
+
 from sklearn.preprocessing import MinMaxScaler
 
 # feature scaling 
@@ -38,18 +44,7 @@ sc_X = MinMaxScaler()
 X_train = sc_X.fit_transform(X_train)
 X_test = sc_X.transform(X_test)
 
-#X = X.astype('float64')
-#X = X.round(20)
-
-# function to cut data
-def cut_data(X, y, steps):
-    total = len(y)
-    length = int(total/steps) * steps
-    X = X[:length, :]
-    y = y[:length]
-    return X, y
-
-# function to split data into correct shape
+# function to split data into correct shape for RNN
 def split_data(X, y, steps):
     X_, y_ = list(), list()
     for i in range(steps, len(y)):
@@ -57,53 +52,93 @@ def split_data(X, y, steps):
         y_.append(y[i]) 
     return np.array(X_), np.array(y_)
 
-steps = 10
-
-X_train, y_train = cut_data(X_train, y_train, steps)
-X_test, y_test = cut_data(X_test, y_test, steps)
+steps = 96
 
 X_train, y_train = split_data(X_train, y_train, steps)
 X_test, y_test = split_data(X_test, y_test, steps)
+X_val, y_val = split_data(X_val, y_val, steps)
 
 
 from keras.models import Sequential
 from keras.layers import Dense
 from keras.layers import LSTM
 from keras.layers import Dropout
+from keras.layers import LeakyReLU
 from keras import initializers
 from keras import optimizers
+from keras.callbacks import EarlyStopping
 
 # parameters
 n_hidden = 1
-units = 10
+units = 96
+batch_size = 100
+
+# function to cut data set so it can be divisible by the batch_size
+def cut_data(data, batch_size):
+     # see if it is divisivel
+    condition = data.shape[0] % batch_size
+    if condition == 0:
+        return data
+    else:
+        return data[: -condition]
 
 # design the LSTM
-model = Sequential()
-model.add(LSTM(units = units, 
-               return_sequences = True,
-               input_shape = (X_train.shape[1], features_num),
-               kernel_initializer = 'he_normal',
-               bias_initializer = initializers.Ones()))
-model.add(LSTM(units = units))
-# model.add(keras.layers.LeakyReLU(aplha = 0.2))
-model.add(Dropout(0.2))
-# =============================================================================
-# for layer in range(n_hidden):
-#     model.add(LSTM(units = units, 
-#                    return_sequences = True,
-#                    kernel_initializer = 'he_normal',
-#                    bias_initializer = initializers.Ones()))
-# # model.add(keras.layers.LeakyReLU(aplha = 0.2))
-#     model.add(Dropout(0.2))
-# =============================================================================
-model.add(Dense(1, activation='linear'))
-optimizer = optimizers.Adamax(lr = 0.001)
-model.compile(loss = 'mse', metrics = ['mse', 'mae'], optimizer = optimizer)
+def regressor_tunning(kernel_initializer = 'he_normal',
+                      bias_initializer = initializers.Ones()):
+    model = Sequential()
+    model.add(LSTM(units = units,                    
+                   batch_input_shape = (batch_size, steps, features_num), 
+                   stateful = True,
+                   return_sequences = True,
+                   kernel_initializer = kernel_initializer,
+                   bias_initializer = bias_initializer))
+    model.add(LeakyReLU(alpha = 0.2))
+    model.add(Dropout(0.2))
+    for layer in list(reversed(range(n_hidden))):
+        if layer == 0:
+            model.add(LSTM(units = units, 
+                           kernel_initializer = kernel_initializer,
+                           bias_initializer = bias_initializer))
+            model.add(LeakyReLU(alpha = 0.2))
+            model.add(Dropout(0.2))
+        else:
+            model.add(LSTM(units = units, 
+                           batch_input_shape = (batch_size, steps, features_num), 
+                           stateful = True,
+                           return_sequences = True,
+                           kernel_initializer = kernel_initializer,
+                           bias_initializer = bias_initializer))
+            model.add(LeakyReLU(alpha = 0.2))
+            model.add(Dropout(0.2))
+    model.add(Dense(1, activation='linear'))
+    model.compile(loss = 'mse', metrics = ['mse', 'mae'], optimizer = 'Adamax')
+    return model
 
-# fitting the RNN to the Training set
-model.fit(X_train, y_train, batch_size = 2, epochs = 4)
+model = regressor_tunning()
 
-y_pred = model.predict(X_test)
+# apply patience callback
+early_stopping = EarlyStopping(monitor='mse', patience=10)
+
+# fitting the LSTM to the training set
+history = model.fit(cut_data(X_train, batch_size),
+                    cut_data(y_train, batch_size), 
+                    batch_size = batch_size, 
+                    epochs = 80,
+                    shuffle = False, 
+                    validation_data = (cut_data(X_val, batch_size), cut_data(y_val, batch_size)),
+                    callbacks = early_stopping)
+            
+X_test = cut_data(X_test, batch_size)
+y_test = cut_data(y_test, batch_size)
+
+# make new predicitons with test set
+y_pred = model.predict(cut_data(X_test, batch_size), batch_size = batch_size)
+
+# plot the training progression
+plt.plot(history.history['val_loss'], label = 'train')
+plt.plot(history.history['val_loss'], label = 'test')
+plt.legend()
+plt.show()
 
 # empty list to append metric values
 mae_cv = []
@@ -185,7 +220,6 @@ rmse_nor.append(rmse_normal)
 mse_nor.append(mse_normal)
 mae_nor.append(mae_normal)
 # Save
-
 
 results = pd.DataFrame({'rmse_general': rmse_gen, 
                  
