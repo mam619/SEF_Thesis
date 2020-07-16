@@ -121,18 +121,18 @@ early_stopping = EarlyStopping(monitor='val_mse', patience=10)
 
 # fitting the LSTM to the training set
 model.fit(cut_data(X_train, batch_size),
-                    cut_data(y_train, batch_size), 
-                    batch_size = batch_size, 
-                    epochs = 100,
-                    shuffle = False, 
-                    validation_data = (cut_data(X_val, batch_size), cut_data(y_val, batch_size)),
-                    callbacks = early_stopping)
+          cut_data(y_train, batch_size), 
+          batch_size = batch_size, 
+          epochs = 100,
+          shuffle = False, 
+          validation_data = (cut_data(X_val, batch_size), cut_data(y_val, batch_size)),
+          callbacks = early_stopping)
             
 X_test = cut_data(X_test, batch_size)
 y_test = cut_data(y_test, batch_size)
 
 # make new predicitons with test set
-y_pred = history.predict(cut_data(X_test, batch_size), batch_size = batch_size)
+y_pred = model.predict(X_test, batch_size = batch_size)
 
 # create plots with rmse & mae during training
 rmse = []

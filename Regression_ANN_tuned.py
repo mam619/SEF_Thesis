@@ -81,7 +81,7 @@ def regressor_tunning(n_hidden = 5,
     model.compile(loss = 'mse', optimizer = optimizer, metrics = ['mse', 'mae'])
     return model
 
-tscv = TimeSeriesSplit(n_splits = 10)
+tscv = TimeSeriesSplit(n_splits = 5)
 
 hist_list = pd.DataFrame()
 count = 1
@@ -91,20 +91,10 @@ regressor = regressor_tunning()
 for train_index, test_index in tscv.split(X_train):
     X_train_split, X_test_split = X_train[train_index], X_train[test_index]
     y_train_split, y_test_split = y_train[train_index], y_train[test_index]
-    hist = regressor.fit(X_train_split, y_train_split,  shuffle = False, batch_size = 10, epochs = 100)
-    hist_list = hist_list.append(hist.history, ignore_index = True)
+    regressor.fit(X_train_split, y_train_split,  shuffle = False, batch_size = 20, epochs = 80)
     print(count)
     count = count + 1
 
-a = []
-b = []
-
-for i in range(len(hist_list.mse)):
-    a.append(np.mean(hist_list.mse[i]))
-    b.append(np.mean(hist_list.mae[i]))
-
-mse_cv.append(np.mean(a))
-mae_cv.append(np.mean(b))
 
 # predict for X_test  
 y_pred = regressor.predict(X_test)
@@ -189,3 +179,21 @@ results = pd.DataFrame({'rmse_general': rmse_gen,
                     
                         'mae_normal': mae_nor})
 
+y_pred = y_pred.reshape(len(y_pred))
+
+Residual = list(y_test)[-672:] - y_pred[-672:]
+
+plt.figure(figsize=(11,5))
+plt.plot(y_pred[-672:], label = 'Predicted values', linewidth = 0.8)
+plt.plot(list(y_test)[-672:], label = 'Real values', linewidth = 0.8)
+plt.plot(Residual, label = 'Residual error', linewidth = 0.5)
+plt.minorticks_on()
+plt.grid(which='major', linestyle='-', linewidth='0.5')
+plt.grid(which='minor', linestyle=':', linewidth='0.5')
+plt.xticks(np.arange(0, 730, 48), list(range(17, 32)))
+plt.xlabel(' Days of December 2018')
+plt.ylabel('(£/MWh)')
+plt.title('Real and predicted maximum accepted offer values\n for the last two weeks of 2018')
+plt.legend()
+plt.tight_layout()
+plt.savefig('ANN_prediction_without_FS.png')
