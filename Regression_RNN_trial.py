@@ -52,7 +52,7 @@ def split_data(X, y, steps):
         y_.append(y[i]) 
     return np.array(X_), np.array(y_)
 
-steps = 96
+steps = 100
 
 X_train, y_train = split_data(X_train, y_train, steps)
 X_test, y_test = split_data(X_test, y_test, steps)
@@ -70,7 +70,7 @@ from keras.callbacks import EarlyStopping
 
 # parameters
 n_hidden = 1
-units = 96
+units = 20
 batch_size = 100
 
 # function to cut data set so it can be divisible by the batch_size
@@ -117,13 +117,13 @@ def regressor_tunning(kernel_initializer = 'he_normal',
 model = regressor_tunning()
 
 # apply patience callback
-early_stopping = EarlyStopping(monitor='mse', patience=10)
+early_stopping = EarlyStopping(monitor='val_mse', patience=10)
 
 # fitting the LSTM to the training set
-history = model.fit(cut_data(X_train, batch_size),
+model.fit(cut_data(X_train, batch_size),
                     cut_data(y_train, batch_size), 
                     batch_size = batch_size, 
-                    epochs = 80,
+                    epochs = 100,
                     shuffle = False, 
                     validation_data = (cut_data(X_val, batch_size), cut_data(y_val, batch_size)),
                     callbacks = early_stopping)
@@ -132,12 +132,39 @@ X_test = cut_data(X_test, batch_size)
 y_test = cut_data(y_test, batch_size)
 
 # make new predicitons with test set
-y_pred = model.predict(cut_data(X_test, batch_size), batch_size = batch_size)
+y_pred = history.predict(cut_data(X_test, batch_size), batch_size = batch_size)
 
-# plot the training progression
-plt.plot(history.history['val_loss'], label = 'train')
-plt.plot(history.history['val_loss'], label = 'test')
+# create plots with rmse & mae during training
+rmse = []
+
+'''
+for i in history.history['mse']:
+    rmse.append(i ** 0.5)
+    
+plt.figure(figsize=(9,4))
+plt.plot(rmse, label = 'train')
 plt.legend()
+plt.xlabel('epochs')
+plt.ylabel('RMSE(£/MWh)')
+plt.tight_layout()
+plt.minorticks_on()
+plt.grid(which='major', linestyle='-', linewidth='0.5')
+plt.grid(which='minor', linestyle=':', linewidth='0.5')
+plt.title('RMSE during training for an initial LSTM architecture')
+plt.savefig('RMSE_1000_epochs_initial_LSTM.png')
+plt.show()
+
+plt.figure(figsize=(9,4))
+plt.plot(history.history['mae'], label = 'train')
+plt.legend()
+plt.xlabel('epochs')
+plt.ylabel('MAE(£/MWh)')
+plt.tight_layout()
+plt.minorticks_on()
+plt.grid(which='major', linestyle='-', linewidth='0.5')
+plt.grid(which='minor', linestyle=':', linewidth='0.5')
+plt.title('MAE during training for an initial LSTM architecture')
+plt.savefig('MAE_1000_epochs_initial_LSTM.png')
 plt.show()
 
 # empty list to append metric values
@@ -233,3 +260,4 @@ results = pd.DataFrame({'rmse_general': rmse_gen,
                     
                         'mae_normal': mae_nor})
 
+'''
