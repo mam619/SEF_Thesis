@@ -23,26 +23,23 @@ data.drop('index', axis = 1, inplace = True)
 # fill nan values
 data.fillna(method = 'ffill', inplace = True)
 
-# divide features and labels
-X = data.iloc[:, 0:15] .values # turns it into an array
-y = data.loc[:, 'Offers'].values # turns it into an array
-
 from sklearn.model_selection import train_test_split
 
 # divide data into train and test 
-X_train, X_test, y_train, y_test = train_test_split(
-         X, y, test_size = 0.15, shuffle=False)
+data_train, data_test = train_test_split(
+         data, test_size = 0.15, shuffle=False)
 
 # divide data into train and validation
-X_train, X_val, y_train, y_val = train_test_split(
-         X_train, y_train, test_size = 0.3, shuffle=False)
+data_train, data_val = train_test_split(
+         data_train, test_size = 0.3, shuffle=False)
 
 from sklearn.preprocessing import MinMaxScaler
 
-# feature scaling 
+# data scaling  (including offer (y))
 sc_X = MinMaxScaler()
-X_train = sc_X.fit_transform(X_train)
-X_test = sc_X.transform(X_test)
+data_train = sc_X.fit_transform(data_train)
+data_test = sc_X.transform(data_test)
+data_val = sc_X.transform(data_val)
 
 # function to split data into correct shape for RNN
 def split_data(X, y, steps):
@@ -54,6 +51,15 @@ def split_data(X, y, steps):
 
 steps = 100
 
+# divide features and labels
+X_train = data_train[:, 0:15] 
+y_train = data_train[:, -1]
+X_test = data_test[:, 0:15] 
+y_test = data_test[:, -1] 
+X_val = data_val[:, 0:15] 
+y_val = data_val[:, -1] 
+
+# put data into correct shape
 X_train, y_train = split_data(X_train, y_train, steps)
 X_test, y_test = split_data(X_test, y_test, steps)
 X_val, y_val = split_data(X_val, y_val, steps)
@@ -120,14 +126,14 @@ model = regressor_tunning()
 early_stopping = EarlyStopping(monitor='val_mse', patience=10)
 
 # fitting the LSTM to the training set
-model.fit(cut_data(X_train, batch_size),
-          cut_data(y_train, batch_size), 
-          batch_size = batch_size, 
-          epochs = 100,
-          shuffle = False, 
-          validation_data = (cut_data(X_val, batch_size), cut_data(y_val, batch_size)),
-          callbacks = early_stopping)
-            
+history = model.fit(cut_data(X_train, batch_size),
+                    cut_data(y_train, batch_size), 
+                    batch_size = batch_size, 
+                    epochs = 5,
+                    shuffle = False, 
+                    validation_data = (cut_data(X_val, batch_size), cut_data(y_val, batch_size)),
+                    callbacks = early_stopping)
+                        
 X_test = cut_data(X_test, batch_size)
 y_test = cut_data(y_test, batch_size)
 
@@ -137,7 +143,6 @@ y_pred = model.predict(X_test, batch_size = batch_size)
 # create plots with rmse & mae during training
 rmse = []
 
-'''
 for i in history.history['mse']:
     rmse.append(i ** 0.5)
     
@@ -260,4 +265,3 @@ results = pd.DataFrame({'rmse_general': rmse_gen,
                     
                         'mae_normal': mae_nor})
 
-'''
