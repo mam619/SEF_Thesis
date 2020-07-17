@@ -142,12 +142,17 @@ y_pred = model.predict(X_test, batch_size = batch_size)
 
 # create plots with rmse & mae during training
 rmse = []
+val_rmse = []
 
 for i in history.history['mse']:
     rmse.append(i ** 0.5)
     
+for i in history.history['val_mse']:
+    val_rmse.append(i ** 0.5)
+    
 plt.figure(figsize=(9,4))
 plt.plot(rmse, label = 'train')
+plt.plot(val_rmse, label = 'test')
 plt.legend()
 plt.xlabel('epochs')
 plt.ylabel('RMSE(£/MWh)')
@@ -156,11 +161,12 @@ plt.minorticks_on()
 plt.grid(which='major', linestyle='-', linewidth='0.5')
 plt.grid(which='minor', linestyle=':', linewidth='0.5')
 plt.title('RMSE during training for an initial LSTM architecture')
-plt.savefig('RMSE_1000_epochs_initial_LSTM.png')
+# plt.savefig('RMSE_1000_epochs_initial_LSTM.png')
 plt.show()
 
 plt.figure(figsize=(9,4))
 plt.plot(history.history['mae'], label = 'train')
+plt.plot(history.history['val_mae'], label = 'test')
 plt.legend()
 plt.xlabel('epochs')
 plt.ylabel('MAE(£/MWh)')
@@ -169,8 +175,33 @@ plt.minorticks_on()
 plt.grid(which='major', linestyle='-', linewidth='0.5')
 plt.grid(which='minor', linestyle=':', linewidth='0.5')
 plt.title('MAE during training for an initial LSTM architecture')
-plt.savefig('MAE_1000_epochs_initial_LSTM.png')
+# plt.savefig('MAE_1000_epochs_initial_LSTM.png')
 plt.show()
+
+# prices col = 15
+y_pred = (y_pred * sc_X.data_range_[15]) + (sc_X.data_min_[15])
+y_test = (y_test * sc_X.data_range_[15]) + (sc_X.data_min_[15])
+
+# calculate residuals
+
+Residual = list(y_test[-672:]) - y_pred[:,0][-672:]
+
+# plot values
+plt.figure(figsize=(11,5))
+plt.plot(y_pred[-672:], label = 'Predicted values', linewidth = 0.8)
+plt.plot(list(y_test)[-672:], label = 'Real values', linewidth = 0.8)
+plt.plot(Residual, label = 'Residual error', linewidth = 0.5)
+plt.minorticks_on()
+plt.grid(which='major', linestyle='-', linewidth='0.5')
+plt.grid(which='minor', linestyle=':', linewidth='0.5')
+plt.xticks(np.arange(0, 730, 48), list(range(17, 32)))
+plt.xlabel(' Days of December 2018', fontsize = 12)
+plt.ylabel('(£/MWh)', fontsize = 12)
+plt.title('LSTM: Real and predicted maximum accepted offer values\n for the last two weeks of 2018'
+          , fontsize=12)
+plt.legend(loc = 'upper right')
+plt.tight_layout()
+plt.savefig('LSTM_prediction_without_FS.png')
 
 # empty list to append metric values
 mae_cv = []
