@@ -81,26 +81,77 @@ def regressor_tunning(n_hidden = 5,
     model.compile(loss = 'mse', optimizer = optimizer, metrics = ['mse', 'mae'])
     return model
 
-tscv = TimeSeriesSplit(n_splits = 5)
+splits = 10 # 5
+epochs = 100 # 80
+
+tscv = TimeSeriesSplit(n_splits = splits)
 
 hist_list = pd.DataFrame()
 count = 1
     
 regressor = regressor_tunning()
-    
+
+hist_list = pd.DataFrame()
+
 for train_index, test_index in tscv.split(X_train):
     X_train_split, X_test_split = X_train[train_index], X_train[test_index]
     y_train_split, y_test_split = y_train[train_index], y_train[test_index]
-    regressor.fit(X_train_split, y_train_split,  shuffle = False, batch_size = 20, epochs = 80)
+    hist = regressor.fit(X_train_split, y_train_split,  
+                         shuffle = False, 
+                         validation_split = 0.2,
+                         batch_size = 20, 
+                         epochs = epochs)
+    hist_list = hist_list.append(hist.history, ignore_index = True)
     print(count)
     count = count + 1
 
+# plot train and test error during training (through epochs)
+mse_ = hist_list.mse
+mae_ = hist_list.mae
+val_mse_ = hist_list.val_mse
+val_mae_ = hist_list.val_mae
+
+rmse = []
+mae = []
+val_rmse = []
+val_mae = []
+
+for i in range(splits):
+    for j in range(epochs):
+        rmse.append(mse_[i][j] ** 0.5)
+        mae.append(mae_[i][j])
+        val_rmse.append(val_mse_[i][j] ** 0.5)
+        val_mae.append(val_mae_[i][j])
+
+# make them pretty  
+fig = plt.figure(figsize = (16,3))
+plt.plot(rmse, label = 'train')
+plt.plot(val_rmse, label = 'test')
+plt.xlabel('Accumulated epochs')
+plt.ylabel('RMSE (£/MWh)')
+plt.grid()
+#plt.yticks(np.linspace(1000, 18000, 5))
+plt.title("RMSE for both training and validation \n during Nested Cross-Validation with {} splits".format(splits))
+plt.show()
+
+
+plt.plot(mae, label = 'train')
+plt.plot(val_mae, label = 'test')
+plt.xlabel('Accumulated epochs')
+plt.ylabel('MAE (£/Mwh)')
+plt.yticks(np.linspace(20, 120, 5))
+plt.grid()
+plt.title("MAE for both training and vbalidation \n during Nested Cross-Validation with {} splits".format(splits))
 
 # predict for X_test  
 y_pred = regressor.predict(X_test)
 
 from sklearn.metrics import mean_squared_error as mse
 from sklearn.metrics import mean_absolute_error as mae
+
+# =============================================================================
+# Metrics evaluation for the whole test set
+# =============================================================================
 
 rmse_error = mse(y_test, y_pred, squared = False)
 mse_error = mse(y_test, y_pred) # 1479.61335
@@ -120,10 +171,8 @@ y_spike_occ = pd.read_csv('Spike_binary_1std.csv', usecols = [6])
 y_spike_occ = y_spike_occ.iloc[- len(y_test):]
 y_spike_occ = pd.Series(y_spike_occ.iloc[:,0]).values
 
-
 # smal adjustment
 y_test.replace(0, 0.0001,inplace = True)
-
 
 # select y_pred and y_test only for regions with spikes
 y_test_spike = (y_test.T * y_spike_occ).T
@@ -164,9 +213,8 @@ mae_normal = mae(y_test_normal, y_pred_normal)
 rmse_nor.append(rmse_normal)
 mse_nor.append(mse_normal)
 mae_nor.append(mae_normal)
+
 # Save
-
-
 results = pd.DataFrame({'rmse_general': rmse_gen, 
                  
                         'mae_general': mae_gen,

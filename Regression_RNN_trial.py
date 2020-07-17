@@ -29,17 +29,12 @@ from sklearn.model_selection import train_test_split
 data_train, data_test = train_test_split(
          data, test_size = 0.15, shuffle=False)
 
-# divide data into train and validation
-data_train, data_val = train_test_split(
-         data_train, test_size = 0.3, shuffle=False)
-
 from sklearn.preprocessing import MinMaxScaler
 
 # data scaling  (including offer (y))
 sc_X = MinMaxScaler()
 data_train = sc_X.fit_transform(data_train)
 data_test = sc_X.transform(data_test)
-data_val = sc_X.transform(data_val)
 
 # function to split data into correct shape for RNN
 def split_data(X, y, steps):
@@ -49,15 +44,17 @@ def split_data(X, y, steps):
         y_.append(y[i]) 
     return np.array(X_), np.array(y_)
 
-steps = 100
+# parameters
+steps = 96
+n_hidden = 1
+units = 50
+batch_size = 150
 
 # divide features and labels
 X_train = data_train[:, 0:15] 
 y_train = data_train[:, -1]
 X_test = data_test[:, 0:15] 
 y_test = data_test[:, -1] 
-X_val = data_val[:, 0:15] 
-y_val = data_val[:, -1] 
 
 # put data into correct shape
 X_train, y_train = split_data(X_train, y_train, steps)
@@ -74,11 +71,6 @@ from keras import initializers
 from keras import optimizers
 from keras.callbacks import EarlyStopping
 
-# parameters
-n_hidden = 1
-units = 20
-batch_size = 100
-
 # function to cut data set so it can be divisible by the batch_size
 def cut_data(data, batch_size):
      # see if it is divisivel
@@ -87,6 +79,13 @@ def cut_data(data, batch_size):
         return data
     else:
         return data[: -condition]
+    
+X_train = cut_data(X_train, batch_size)
+y_train = cut_data(y_train, batch_size)
+X_test = cut_data(X_test, batch_size)
+y_test = cut_data(y_test, batch_size)
+X_val = cut_data(X_val, batch_size)
+y_val = cut_data(y_val, batch_size)
 
 # design the LSTM
 def regressor_tunning(kernel_initializer = 'he_normal',
@@ -94,8 +93,8 @@ def regressor_tunning(kernel_initializer = 'he_normal',
     model = Sequential()
     model.add(LSTM(units = units,                    
                    batch_input_shape = (batch_size, steps, features_num), 
-                   stateful = True,
                    return_sequences = True,
+                   stateful = True,
                    kernel_initializer = kernel_initializer,
                    bias_initializer = bias_initializer))
     model.add(LeakyReLU(alpha = 0.2))
@@ -125,17 +124,16 @@ model = regressor_tunning()
 # apply patience callback
 early_stopping = EarlyStopping(monitor='val_mse', patience=10)
 
+
+
 # fitting the LSTM to the training set
-history = model.fit(cut_data(X_train, batch_size),
-                    cut_data(y_train, batch_size), 
+history = model.fit(X_train,
+                    y_train, 
                     batch_size = batch_size, 
-                    epochs = 5,
+                    epochs = 50,
                     shuffle = False, 
-                    validation_data = (cut_data(X_val, batch_size), cut_data(y_val, batch_size)),
+                    validation_data = (X_val, y_val),
                     callbacks = early_stopping)
-                        
-X_test = cut_data(X_test, batch_size)
-y_test = cut_data(y_test, batch_size)
 
 # make new predicitons with test set
 y_pred = model.predict(X_test, batch_size = batch_size)
