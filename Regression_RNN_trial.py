@@ -14,7 +14,7 @@ data = pd.read_csv('Data_set_1_smaller.csv', index_col = 0)
 features_num = 15
 
 # 2018 data
-data = data.loc[data.index > 2018000000, :]
+data = data.loc[data.index > 2018070000, :]
 
 # reset index
 data.reset_index(inplace = True)
@@ -47,14 +47,19 @@ def split_data(X, y, steps):
 # parameters
 steps = 96
 n_hidden = 1
-units = 50
-batch_size = 150
+units = 100 # did it with 50 before
+batch_size = 64
+epochs = 100
 
 # divide features and labels
 X_train = data_train[:, 0:15] 
 y_train = data_train[:, -1]
 X_test = data_test[:, 0:15] 
 y_test = data_test[:, -1] 
+
+# divide data into validation and normal test 
+X_train, X_val, y_train, y_val = train_test_split(
+        X_train, y_train, test_size = 0.15, shuffle=False)
 
 # put data into correct shape
 X_train, y_train = split_data(X_train, y_train, steps)
@@ -92,48 +97,33 @@ def regressor_tunning(kernel_initializer = 'he_normal',
                       bias_initializer = initializers.Ones()):
     model = Sequential()
     model.add(LSTM(units = units,                    
-                   batch_input_shape = (batch_size, steps, features_num), 
-                   return_sequences = True,
+                   batch_input_shape = (batch_size, steps, features_num),
                    stateful = True,
                    kernel_initializer = kernel_initializer,
                    bias_initializer = bias_initializer))
     model.add(LeakyReLU(alpha = 0.2))
     model.add(Dropout(0.2))
-    for layer in list(reversed(range(n_hidden))):
-        if layer == 0:
-            model.add(LSTM(units = units, 
-                           kernel_initializer = kernel_initializer,
-                           bias_initializer = bias_initializer))
-            model.add(LeakyReLU(alpha = 0.2))
-            model.add(Dropout(0.2))
-        else:
-            model.add(LSTM(units = units, 
-                           batch_input_shape = (batch_size, steps, features_num), 
-                           stateful = True,
-                           return_sequences = True,
-                           kernel_initializer = kernel_initializer,
-                           bias_initializer = bias_initializer))
-            model.add(LeakyReLU(alpha = 0.2))
-            model.add(Dropout(0.2))
+    model.add(Dense(units))
+    model.add(LeakyReLU(alpha = 0.2))
     model.add(Dense(1, activation='linear'))
-    model.compile(loss = 'mse', metrics = ['mse', 'mae'], optimizer = 'Adamax')
+    optimizer = optimizers.Adamax(lr = 0.005)
+    model.compile(loss = 'mse', metrics = ['mse', 'mae'], optimizer = optimizer)
     return model
 
 model = regressor_tunning()
 
 # apply patience callback
-early_stopping = EarlyStopping(monitor='val_mse', patience=10)
-
-
+# early_stopping = EarlyStopping(monitor = 'val_mse', patience = 20)
 
 # fitting the LSTM to the training set
 history = model.fit(X_train,
                     y_train, 
                     batch_size = batch_size, 
-                    epochs = 50,
+                    epochs = 100,
                     shuffle = False, 
-                    validation_data = (X_val, y_val),
-                    callbacks = early_stopping)
+                    validation_data = (X_val, y_val))
+
+model.reset_states()
 
 # make new predicitons with test set
 y_pred = model.predict(X_test, batch_size = batch_size)
@@ -293,4 +283,3 @@ results = pd.DataFrame({'rmse_general': rmse_gen,
                         'rmse_normal': rmse_nor,
                     
                         'mae_normal': mae_nor})
-
