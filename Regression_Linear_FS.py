@@ -6,8 +6,7 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import MinMaxScaler;
-from sklearn.model_selection import TimeSeriesSplit;
+from sklearn.preprocessing import MinMaxScaler
 from sklearn.feature_selection import RFE
 
 # import data
@@ -49,9 +48,6 @@ mse_nor = []
 mse_spi = []
 rmse_nor = []
 rmse_spi = []
-
-# define parameters
-splits = 4
 
 from sklearn.linear_model import LinearRegression
 
@@ -96,7 +92,7 @@ for i in range(len(results_fs)):
     
     # divide data into train and test with 15% test data
     X_train, X_test, y_train, y_test = train_test_split(
-             X, y, test_size = 0.15, shuffle=False)
+             X, y, test_size = 0.15, shuffle = False)
     
     # feature scaling
     sc_X = MinMaxScaler()
@@ -105,17 +101,7 @@ for i in range(len(results_fs)):
 
     # create linear regressor 
     regressor = LinearRegression()
-    
-    splits = 4
-    
-    # create time series split for CV
-    tscv = TimeSeriesSplit(n_splits = splits)
-
-    # CV made in a loop to check values
-    for train_index, test_index in tscv.split(X_train):
-        X_train_split, X_test_split = X_train[train_index], X_train[test_index]
-        y_train_split, y_test_split = y_train[train_index], y_train[test_index]
-        regressor.fit(X_train_split, y_train_split)
+    regressor.fit(X_train, y_train)
     
     # make predictions with X_test
     y_pred = regressor.predict(X_test)

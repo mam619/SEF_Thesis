@@ -6,10 +6,7 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import MinMaxScaler;
-from sklearn import metrics;
-from sklearn.model_selection import TimeSeriesSplit;
-from Regression_Linear_FS import results_fs
+from sklearn.preprocessing import MinMaxScaler
 
 # import data
 data = pd.read_csv('Data_set_1_smaller.csv', index_col = 0)
@@ -52,22 +49,11 @@ mse_spi = []
 rmse_nor = []
 rmse_spi = []
 
-# define parameters
-splits = 4
-
 from sklearn.linear_model import LinearRegression
 
 # create linear regressor 
 regressor = LinearRegression()
-
-# create time series split for CV
-tscv = TimeSeriesSplit(n_splits = splits)
-
-# CV made in a loop to check values
-for train_index, test_index in tscv.split(X_train):
-    X_train_split, X_test_split = X_train[train_index], X_train[test_index]
-    y_train_split, y_test_split = y_train[train_index], y_train[test_index]
-    regressor.fit(X_train_split, y_train_split)
+regressor.fit(X_train, y_train)
 
 # predict for X_test  
 y_pred = regressor.predict(X_test)

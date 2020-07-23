@@ -26,7 +26,7 @@ X = data.iloc[:, 0:15]
 y = data.loc[:, 'Offers']
 
 # select features that give best results from FS
-X = X.loc[:, results_fs.loc[4][1]]
+X = X.loc[:, results_fs.loc[3][1]]
 
 # fill nan values
 X.fillna(X.mean(), inplace = True)
@@ -56,22 +56,11 @@ mse_spi = []
 rmse_nor = []
 rmse_spi = []
 
-# define parameters
-splits = 4
-
 from sklearn.linear_model import LinearRegression
 
 # create linear regressor 
 regressor = LinearRegression()
-
-# create time series split for CV
-tscv = TimeSeriesSplit(n_splits = splits)
-
-# CV made in a loop to check values
-for train_index, test_index in tscv.split(X_train):
-    X_train_split, X_test_split = X_train[train_index], X_train[test_index]
-    y_train_split, y_test_split = y_train[train_index], y_train[test_index]
-    regressor.fit(X_train_split, y_train_split)
+regressor.fit(X_train, y_train)
 
 # predict for X_test  
 y_pred = regressor.predict(X_test)
