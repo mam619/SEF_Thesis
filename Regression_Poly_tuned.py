@@ -12,7 +12,7 @@ from sklearn.preprocessing import MinMaxScaler
 data = pd.read_csv('Data_set_1_smaller.csv', index_col = 0)
 
 # 3 months
-data = data.loc[data.index > 2018110000, :]
+data = data.loc[data.index > 2018070000, :]
 
 # reset index
 data.reset_index(inplace = True)
@@ -32,7 +32,7 @@ X = X.round(20)
 
 # divide data into train and test with 15% test data
 X_train, X_test, y_train, y_test = train_test_split(
-         X, y, test_size = 0.15, shuffle=False)
+         X, y, test_size = 0.075, shuffle=False)
 
 # feature scaling
 sc_X = MinMaxScaler()
@@ -157,15 +157,13 @@ plt.figure(figsize=(11,5))
 plt.plot(y_pred[-672:], label = 'Predicted values', linewidth = 0.8)
 plt.plot(list(y_test)[-672:], label = 'Real values', linewidth = 0.8)
 plt.plot(Residual, label = 'Residual error', linewidth = 0.5)
-a = len(y_pred[-672:])
-#b = len(y_pred) - a
-plt.xticks(np.arange(0, a, 48), list(range(22, 32)))
+plt.xticks(np.arange(0, 700, 48), list(range(17, 32)))
 plt.minorticks_on()
 plt.grid(which='major', linestyle='-', linewidth='0.5')
 plt.grid(which='minor', linestyle=':', linewidth='0.5')
 plt.xlabel(' Days of December 2018')
 plt.ylabel('(£/MWh)')
-plt.title('Linear Regression: Real and predicted maximum accepted\n offer values for the last two weeks of 2018')
+plt.title('Polynomial Regression: Real and predicted maximum accepted\n offer values for the last two weeks of 2018')
 plt.legend()
 plt.tight_layout()
 plt.savefig('Polynomial_Regression_prediction_without_FS_end_2018.png')
