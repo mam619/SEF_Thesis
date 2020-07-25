@@ -139,7 +139,7 @@ results = pd.DataFrame({'rmse_general': rmse_gen,
                     
                         'mae_normal': mae_nor})
 
-results.to_csv('Results_Linear_Regression_end_2018.csv')
+results.to_csv('Results_Linear_Regression.csv')
 
 y_pred = y_pred.reshape(len(y_pred))
 
@@ -161,7 +161,7 @@ plt.ylabel('(£/MWh)')
 plt.title('Linear Regression: Real and predicted maximum accepted\n offer values for the last two weeks of 2018')
 plt.legend()
 plt.tight_layout()
-plt.savefig('Linear_Regression_prediction_without_FS_end_2018.png')
+plt.savefig('Linear_Regression_prediction_without_FS.png')
 
 '''
 # =============================================================================
