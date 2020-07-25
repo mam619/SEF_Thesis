@@ -6,7 +6,7 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import MinMaxScaler
+from sklearn.preprocessing import Normalizer
 
 # import data
 data = pd.read_csv('Data_set_1_smaller.csv', index_col = 0)
@@ -22,8 +22,8 @@ data.drop('index', axis = 1, inplace = True)
 X = data.iloc[:, 0:15]
 y = data.loc[:, 'Offers']
 
-X.fillna(X.mean(), inplace = True)
-y.fillna(y.mean(), inplace = True)
+X.fillna(0, inplace = True)
+y.fillna(0, inplace = True)
 
 # small fix
 X = X.astype('float64')
@@ -31,10 +31,10 @@ X = X.round(20)
 
 # divide data into train and test with 15% test data
 X_train, X_test, y_train, y_test = train_test_split(
-         X, y, test_size = 0.15, shuffle = False)
+         X, y, test_size = 0.075, shuffle = False)
 
 # feature scaling
-sc_X = MinMaxScaler()
+sc_X = Normalizer(norm = 'l2')
 X_train = sc_X.fit_transform(X_train)
 X_test = sc_X.transform(X_test)
 
@@ -52,7 +52,7 @@ rmse_spi = []
 from sklearn.ensemble import RandomForestRegressor
 
 # create regressor 
-regressor = RandomForestRegressor(n_estimators = 10)
+regressor = RandomForestRegressor(n_estimators = 80)
 regressor.fit(X_train, y_train)
 
 # predict for X_test  
@@ -152,13 +152,13 @@ plt.plot(list(y_test)[-672:], label = 'Real values', linewidth = 0.8)
 plt.plot(Residual, label = 'Residual error', linewidth = 0.5)
 a = len(y_pred[-672:])
 #b = len(y_pred) - a
-plt.xticks(np.arange(0, a, 48), list(range(22, 32)))
+plt.xticks(np.arange(0, 700, 48), list(range(17, 32)))
 plt.minorticks_on()
 plt.grid(which='major', linestyle='-', linewidth='0.5')
 plt.grid(which='minor', linestyle=':', linewidth='0.5')
 plt.xlabel(' Days of December 2018')
 plt.ylabel('(£/MWh)')
-plt.title('Linear Regression: Real and predicted maximum accepted\n offer values for the last two weeks of 2018')
+plt.title('Random Forest: Real and predicted maximum accepted\n offer values for the last two weeks of 2018')
 plt.legend()
 plt.tight_layout()
 plt.savefig('Random_Forest_Regression_prediction_without_FS.png')
