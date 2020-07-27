@@ -32,12 +32,15 @@ offers16 = data16['Offers']
 # =============================================================================
 # ETS decomposition
 # =============================================================================
+
 from statsmodels.tsa.seasonal import seasonal_decompose
-results = seasonal_decompose(offers18, model = 'aditive', period = 336)
 from pylab import rcParams
+
+results = seasonal_decompose(offers18, model = 'aditive', period = 336)
 # Add the same figure size to all plots
 # rcParams['figure.figsize'] = 12,5
-#results.plot()
+# results.plot()
+
 # No trend and no season observed
 
 # =============================================================================
@@ -120,19 +123,19 @@ rcParams['figure.figsize'] = 15,5
 plt.plot(range_w, spike_var_18['num_spikes'], label = '2018')
 plt.plot(range_w, spike_var_17['num_spikes'], label = '2017')
 plt.plot(range_w, spike_var_16['num_spikes'], label = '2016')
-plt.ylabel('Number of SP')
-plt.xlabel('Window number')
+plt.ylabel('Number of SP with spikes')
+plt.xlabel('Window number (SP)')
 plt.xticks(np.arange(0, 62, 2))
 plt.scatter(spike_var_18[spike_var_18['num_spikes'] == max_spike_18].window, max_spike_18 , color = 'red', label = 'Maximum values')
-plt.text(spike_var_18[spike_var_18['num_spikes'] == max_spike_18].window + 0.5, max_spike_18 + 0.5, '({},{})'.format(spike_var_18[spike_var_18['num_spikes'] == max_spike_18].window.iloc[0], max_spike_18))
+plt.text(spike_var_18[spike_var_18['num_spikes'] == max_spike_18].window , max_spike_18 + 200, '({},{})'.format(spike_var_18[spike_var_18['num_spikes'] == max_spike_18].window.iloc[0], max_spike_18))
 plt.scatter(spike_var_17[spike_var_17['num_spikes'] == max_spike_17].window, max_spike_17 , color = 'red')
-plt.text(spike_var_17[spike_var_17['num_spikes'] == max_spike_17].window + 1, max_spike_17 - 5, '({},{})'.format(spike_var_17[spike_var_17['num_spikes'] == max_spike_17].window.iloc[0], max_spike_17))
+plt.text(spike_var_17[spike_var_17['num_spikes'] == max_spike_17].window + 1, max_spike_17 - 200, '({},{})'.format(spike_var_17[spike_var_17['num_spikes'] == max_spike_17].window.iloc[0], max_spike_17))
 plt.scatter(spike_var_16[spike_var_16['num_spikes'] == max_spike_16].window, max_spike_16 , color = 'red')
-plt.text(spike_var_16[spike_var_16['num_spikes'] == max_spike_16].window + 0.5, max_spike_16 + 1, '({},{})'.format(spike_var_16[spike_var_16['num_spikes'] == max_spike_16].window.iloc[0], max_spike_16))
+plt.text(spike_var_16[spike_var_16['num_spikes'] == max_spike_16].window , max_spike_16 + 200, '({},{})'.format(spike_var_16[spike_var_16['num_spikes'] == max_spike_16].window.iloc[0], max_spike_16))
 plt.title('Number of SP with spike occurances according\n to recursive filter (RF) for different \nrolling windows for three different years\n', fontsize= 15)
-plt.minorticks_on() #required for the minor grid
-plt.grid(which = 'major', linestyle ='-', linewidth = '0.25', color = 'black')
-#plt.grid(which = 'minor', linestyle = ':', linewidth = '0.5', color = 'black')
+plt.minorticks_on()
+plt.grid(which='major', linestyle='-', linewidth='0.5')
+plt.grid(which='minor', linestyle=':', linewidth='0.5')
 plt.legend()
 plt.show()
 
@@ -171,14 +174,15 @@ plt.show()
 plt.plot(range_w, spike_var_18['num_spikes'], label = 'Number of SP with spike occurences')
 plt.plot(range_w, spike_var_18['num_normal'], label = 'Number of SP under normal operation')
 plt.ylabel('Number of SP')
-plt.xlabel('Window number')
+plt.xlabel('Window number (SP)')
 plt.title('Number of SP with spike occurances and under normal operation for the year of 2018 \n plotted for different rolling windows according \n to recursive filter (RF) for  different rolling windows\n', fontsize= 15)
 plt.xticks(np.arange(0, 62, 2))
 #plt.scatter(spike_var[spike_var['num_normal'] == max_num].window, max_num , color = 'red')
 plt.scatter(spike_var_18[spike_var_18['num_spikes'] == max_spike_18].window, max_spike_18 , color = 'red', label = 'Maximum value')
 plt.text(spike_var_18[spike_var_18['num_spikes'] == max_spike_18].window + 0.5, max_spike_18 + 0.5, '({},{})'.format(spike_var_18[spike_var_18['num_spikes'] == max_spike_18].window.iloc[0], max_spike_18))
-plt.minorticks_on() #required for the minor grid
-plt.grid(which = 'major', linestyle ='-', linewidth = '0.25', color = 'black')
+plt.minorticks_on()
+plt.grid(which='major', linestyle='-', linewidth='0.5')
+plt.grid(which='minor', linestyle=':', linewidth='0.5')
 plt.legend()
 plt.show()
 
@@ -204,7 +208,60 @@ data_to_save.to_csv('Spike_binary_1std.csv')
 # Some visualisation
 # =============================================================================
 
-w = 50
+w = 48
+offers1850 = data18
+plt.figure(figsize=(12,4))
+offers1850['sma'] = data18['Offers'].rolling(window = w).mean()
+offers1850['std'] = data18['Offers'].rolling(w).std()
+offers1850['spike_upperlim'] = data18['sma'] + (data18['std'])
+offers1850['spike_lowerlim'] = data18['sma'] - (data18['std'])
+offers1850['spike_occurance'] = ((data18['Offers'] > data18['spike_upperlim']) | (data18['Offers'] < data18['spike_lowerlim'])).astype(np.int)
+
+plt.plot(data18[-49:]['Offers'], label = 'Offer')
+plt.plot(data18[-49:]['sma'], label = 'Simple moving average')
+plt.plot(data18[-49:]['spike_upperlim'], label = ' Spike upper limit')
+plt.plot(data18[-49:]['spike_lowerlim'], label = ' Spike lower limit')
+plt.title('Offers with spike limits for the last day of 2018 with a rolling window = {} SP'.format(w))
+plt.xticks(np.arange(17473, 17524, 1), np.arange(0, 49), fontsize = 10)
+plt.legend(fontsize = 14)
+plt.minorticks_on()
+plt.grid(which='major', linestyle='-', linewidth='0.5')
+plt.grid(which='minor', linestyle=':', linewidth='0.5')
+plt.ylim(0,220)
+plt.xlim(17472,17522)
+plt.ylabel('Offer price in £/MWh', fontsize = 14)
+plt.xlabel('SP of the day', fontsize = 14)
+plt.tight_layout()
+plt.show()
+
+w = 8
+plt.figure(figsize=(12,4))
+data18['sma'] = data18['Offers'].rolling(window = w).mean()
+data18['std'] = data18['Offers'].rolling(w).std()
+data18['spike_upperlim'] = data18['sma'] + (data18['std'])
+data18['spike_lowerlim'] = data18['sma'] - (data18['std'])
+data18['spike_occurance'] = ((data18['Offers'] > data18['spike_upperlim']) | (data18['Offers'] < data18['spike_lowerlim'])).astype(np.int)
+plt.plot(data18[-49:]['Offers'], label = 'Offer')
+plt.plot(data18[-49:]['sma'], label = 'Simple moving average')
+plt.plot(data18[-49:]['spike_upperlim'], label = ' Spike upper limit')
+plt.plot(data18[-49:]['spike_lowerlim'], label = ' Spike lower limit')
+plt.title('Offers with spike limits for the last day of 2018 with a rolling window = {} SP'.format(w))
+plt.xticks(np.arange(17473, 17524, 1), np.arange(0, 49), fontsize = 10)
+plt.legend(fontsize = 14)
+plt.minorticks_on()
+plt.grid(which='major', linestyle='-', linewidth='0.5')
+plt.grid(which='minor', linestyle=':', linewidth='0.5')
+plt.ylim(0,220)
+plt.xlim(17472,17522)
+plt.ylabel('Offer price in £/MWh', fontsize = 14)
+plt.xlabel('SP of the day', fontsize = 14)
+plt.tight_layout()
+plt.show()
+
+
+# another day 
+
+w = 48
 offers1850 = data18
 plt.figure(figsize=(15,5))
 offers1850['sma'] = data18['Offers'].rolling(window = w).mean()
@@ -213,33 +270,18 @@ offers1850['spike_upperlim'] = data18['sma'] + (data18['std'])
 offers1850['spike_lowerlim'] = data18['sma'] - (data18['std'])
 offers1850['spike_occurance'] = ((data18['Offers'] > data18['spike_upperlim']) | (data18['Offers'] < data18['spike_lowerlim'])).astype(np.int)
 
-plt.plot(offers1850[-48:]['Offers'], label = 'Offer')
-plt.plot(offers1850[-48:]['sma'], label = 'Simple moving average')
-plt.plot(offers1850[-48:]['spike_upperlim'], label = ' Spike upper limit')
-plt.plot(offers1850[-48:]['spike_lowerlim'], label = ' Spike lower limit')
+plt.plot(data18[-144:-95]['Offers'], label = 'Offer')
+plt.plot(data18[-144:-95]['sma'], label = 'Simple moving average')
+plt.plot(data18[-144:-95]['spike_upperlim'], label = ' Spike upper limit')
+plt.plot(data18[-144:-95]['spike_lowerlim'], label = ' Spike lower limit')
 plt.title('Offers with spike limits for the last day of 2018 with a rolling window = {} SP'.format(w))
-plt.xticks(np.arange(17474, 17523, 2), np.arange(0, 26))
 plt.legend()
-plt.ylim(0,220)
+plt.minorticks_on()
+plt.grid(which='major', linestyle='-', linewidth='0.5')
+plt.grid(which='minor', linestyle=':', linewidth='0.5')
+plt.xticks(np.arange(17378, 17427, 1), np.arange(0, 49))
+plt.xlim(17377,17428)
+plt.ylim(0,290)
 plt.ylabel('Offer price in £/MWh')
-plt.xlabel('Hours of the day')
-plt.show()
-
-w = 8
-plt.figure(figsize=(15,5))
-data18['sma'] = data18['Offers'].rolling(window = w).mean()
-data18['std'] = data18['Offers'].rolling(w).std()
-data18['spike_upperlim'] = data18['sma'] + (data18['std'])
-data18['spike_lowerlim'] = data18['sma'] - (data18['std'])
-data18['spike_occurance'] = ((data18['Offers'] > data18['spike_upperlim']) | (data18['Offers'] < data18['spike_lowerlim'])).astype(np.int)
-plt.plot(data18[-48:]['Offers'], label = 'Offer')
-plt.plot(data18[-48:]['sma'], label = 'Simple moving average')
-plt.plot(data18[-48:]['spike_upperlim'], label = ' Spike upper limit')
-plt.plot(data18[-48:]['spike_lowerlim'], label = ' Spike lower limit')
-plt.title('Offers with spike limits for the last day of 2018 with a rolling window = {} SP'.format(w))
-plt.xticks(np.arange(17474, 17523, 2), np.arange(0, 26))
-plt.legend()
-plt.ylim(0,220)
-plt.ylabel('Offer price in £/MWh')
-plt.xlabel('Hours of the day')
+plt.xlabel('SP of the day')
 plt.show()

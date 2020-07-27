@@ -8,8 +8,6 @@ import matplotlib.pyplot as plt
 
 # FOR 1 STD:
 
-data = pd.read_csv('Spike_binary_1std.csv')
-
 # for window = 50, plot last 24 hours of 2018
 w = 50
 plt.figure(figsize=(15,5))
