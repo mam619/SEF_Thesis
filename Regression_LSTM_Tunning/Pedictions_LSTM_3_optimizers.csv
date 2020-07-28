@@ -1,0 +1,29 @@
+,optimizers,Predicitons
+0,<tensorflow.python.keras.optimizer_v2.rmsprop.RMSprop object at 0x0000021AFA917D48>,"[[107.71407]
+ [107.42167]
+ [107.2898 ]
+ ...
+ [110.10592]
+ [109.85152]
+ [109.48889]]"
+1,<tensorflow.python.keras.optimizer_v2.adam.Adam object at 0x0000021AFA917F08>,"[[114.86526 ]
+ [113.532295]
+ [112.70761 ]
+ ...
+ [112.79242 ]
+ [112.41264 ]
+ [112.1328  ]]"
+2,<tensorflow.python.keras.optimizer_v2.nadam.Nadam object at 0x0000021AFA917EC8>,"[[113.613335]
+ [113.553116]
+ [113.5135  ]
+ ...
+ [114.605965]
+ [114.508026]
+ [114.41318 ]]"
+3,<tensorflow.python.keras.optimizer_v2.adamax.Adamax object at 0x0000021AFA917F48>,"[[100.06197 ]
+ [ 99.811874]
+ [ 99.687485]
+ ...
+ [100.57594 ]
+ [ 98.86816 ]
+ [ 97.762764]]"

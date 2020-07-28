@@ -79,7 +79,7 @@ steps = 96
 n_hidden = 1
 units = 150 # did it with 50 before
 batch_size = 96
-epochs = 100
+epochs = 1000
 
 # =============================================================================
 # set up X and y for train, test and val into correct shapes
@@ -125,21 +125,24 @@ def regressor_tunning(kernel_initializer = 'he_normal',
     model = Sequential()
     if n_hidden == 0:
         model.add(LSTM(units = units,                    
-                       input_shape = (steps, features_num), 
+                       batch_input_shape = (batch_size, steps, features_num), 
+                       stateful = True,
                        kernel_initializer = kernel_initializer,
                        bias_initializer = bias_initializer))
         model.add(LeakyReLU(alpha = 0.2))
         model.add(Dropout(0.2))
     else:
         model.add(LSTM(units = units,                    
-                       input_shape = (steps, features_num), 
+                       batch_input_shape = (batch_size, steps, features_num), 
+                       stateful = True,
                        return_sequences = True,
                        kernel_initializer = kernel_initializer,
                        bias_initializer = bias_initializer))
         model.add(LeakyReLU(alpha = 0.2))
         model.add(Dropout(0.2))
         model.add(LSTM(units = units, 
-                       input_shape = (steps, features_num), 
+                       batch_input_shape = (batch_size, steps, features_num), 
+                       stateful = True,
                        kernel_initializer = kernel_initializer,
                        bias_initializer = bias_initializer))
         model.add(LeakyReLU(alpha = 0.2))
@@ -165,6 +168,9 @@ history = model.fit(X_train,
                     epochs = epochs,
                     shuffle = False, 
                     validation_data = (X_val, y_val))
+
+# required before predicitons
+model.reset_states()
 
 # =============================================================================
 # make new predicitons with test set
