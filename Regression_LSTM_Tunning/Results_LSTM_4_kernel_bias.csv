@@ -1,0 +1,7 @@
+,all_param,rmse_general,mae_general,rmse_spike,mae_spike,rmse_normal,mae_normal
+0,"{'bias_initializer': <tensorflow.python.ops.init_ops_v2.Zeros object at 0x0000027629BB3908>, 'kernel_initializer': 'glorot_uniform'}",99.69030186523881,93.81472114006901,96.0218831687444,91.31743679878696,100.22380706150877,94.18570355966126
+1,"{'bias_initializer': <tensorflow.python.ops.init_ops_v2.Zeros object at 0x0000027629BB3908>, 'kernel_initializer': 'he_normal'}",33798.25177529937,33798.23547282118,33794.80842929065,33794.79541212248,33798.76326935543,33798.746508757475
+2,"{'bias_initializer': <tensorflow.python.ops.init_ops_v2.Zeros object at 0x0000027629BB3908>, 'kernel_initializer': 'he_uniform'}",61772.781259386786,61772.77233967882,61776.21952144527,61776.212400377524,61772.27047431986,61772.261303742525
+3,"{'bias_initializer': <tensorflow.python.ops.init_ops_v2.Ones object at 0x0000027629A01488>, 'kernel_initializer': 'glorot_uniform'}",167393.08422505308,167393.0809334288,167396.52362209503,167396.52099412752,167392.573281677,167392.56989749253
+4,"{'bias_initializer': <tensorflow.python.ops.init_ops_v2.Ones object at 0x0000027629A01488>, 'kernel_initializer': 'he_normal'}",213763.15601916754,213763.1534415712,213759.7154388497,213759.71338087248,213763.66712757124,213763.66447750747
+5,"{'bias_initializer': <tensorflow.python.ops.init_ops_v2.Ones object at 0x0000027629A01488>, 'kernel_initializer': 'he_uniform'}",275594.1923077276,275594.1903084288,275597.6319653409,275597.6303691275,275593.681328009,275593.67927249253
