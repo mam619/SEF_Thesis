@@ -25,16 +25,17 @@ A__ = data.rmse_normal
 A__ = np.array(A__)
 Z__ = np.reshape(A__, (len(x), len(y))).T
     
+size = 14
 
 fig = plt.figure(figsize = (10,5))
 ax = plt.axes(projection='3d')
 surf = ax.plot_surface(X, Y, Z,
                 cmap='winter', 
                 edgecolor='none')
-ax.set_xlabel('N_hidden')
-ax.set_ylabel('N_neurons')
-ax.set_zlabel('RMSE (£/MWH)')
-ax.set_title('ANN: RMSE for different number of hidden layers \n& different number of neurons\n on the whole data set')
+ax.set_xlabel('N_hidden', fontsize = 13)
+ax.set_ylabel('N_neurons', fontsize = 13)
+ax.set_zlabel('RMSE (£/MWH)', fontsize = 13)
+ax.set_title('ANN: Number of hidden layers vs. Number of neurons\n on the whole data set', fontsize = 16)
 # Add a color bar which maps values to colors.
 fig.colorbar(surf, shrink = 0.7, aspect = 10)
 plt.tight_layout()
@@ -44,13 +45,12 @@ plt.savefig('Results_ANN_n_neurons_n_hidden_all.png')
 fig = plt.figure(figsize = (10,5))
 ax = plt.axes(projection='3d')
 surf = ax.plot_surface(X, Y, Z_,
-                cmap='winter', 
+                cmap='autumn', 
                 edgecolor='none')
-ax.set_xlabel('N_hidden')
-ax.set_ylabel('N_neurons')
-ax.set_zlabel('RMSE (£/MWH)')
-ax.set_title('ANN model on the spike regions\n Hidden layers vs. Neurons Number \n',
-             fontsize = 16)
+ax.set_xlabel('N_hidden', fontsize = 13)
+ax.set_ylabel('N_neurons', fontsize = 13)
+ax.set_zlabel('RMSE (£/MWH)', fontsize = 13)
+ax.set_title('ANN: Number of hidden layers vs. Number of neurons\n on the spike regions', fontsize = 16)
 fig.colorbar(surf, shrink = 0.7, aspect = 10)
 plt.tight_layout()
 plt.show()
@@ -59,12 +59,12 @@ plt.savefig('Results_ANN_n_neurons_n_hidden_spike.png')
 fig = plt.figure(figsize = (10,5))
 ax = plt.axes(projection='3d')
 surf = ax.plot_surface(X, Y, Z__,
-                cmap='winter', 
+                cmap='summer', 
                 edgecolor='none')
-ax.set_xlabel('N_hidden')
-ax.set_ylabel('N_neurons')
-ax.set_zlabel('RMSE (£/MWH)')
-ax.set_title('ANN: RMSE for different number of hidden layers \n& different number of neurons\n on the normal regions')
+ax.set_xlabel('N_hidden', fontsize = 13)
+ax.set_ylabel('N_neurons', fontsize = 13)
+ax.set_zlabel('RMSE (£/MWH)', fontsize = 13)
+ax.set_title('ANN: Number of hidden layers vs. Number of neurons\n on the normal regions', fontsize = 16)
 fig.colorbar(surf, shrink = 0.7, aspect = 10)
 plt.tight_layout()
 plt.show()

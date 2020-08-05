@@ -67,13 +67,13 @@ from keras.wrappers.scikit_learn import KerasRegressor
 
 # initialises regressor with 2 hidden layers
 regressor = Sequential() 
-regressor.add(Dense(output_dim = 11, kernel_initializer = 'he_normal', input_dim = 15))
+regressor.add(Dense(units = 11, kernel_initializer = 'he_normal'))
 regressor.add(keras.layers.LeakyReLU(alpha = 0.2))
 regressor.add(Dense(11, kernel_initializer = 'he_normal'))
 regressor.add(keras.layers.LeakyReLU(alpha = 0.2))
 regressor.add(Dense(11, kernel_initializer = 'he_normal'))
 regressor.add(keras.layers.LeakyReLU(alpha = 0.2))
-regressor.add(Dense(output_dim = 1, kernel_initializer = 'he_normal', activation = 'linear'))
+regressor.add(Dense(units = 1, kernel_initializer = 'he_normal', activation = 'linear'))
 regressor.compile(optimizer = 'RMSprop', loss = 'mse', metrics = ['mse', 'mae'])
 
 hist_list = pd.DataFrame()
@@ -95,13 +95,13 @@ loss_ = hist_list.loss
 mae_ = hist_list.mae
 
 # append to then plot
-mse = []
+rmse = []
 loss = []
 mae = []
 
 for i in range(4):
     for j in range(40):
-        mse.append(mse_[i][j])
+        mse.append(mse_[i][j] * 0.5)
         loss.append(loss_[i][j])
         mae.append(mae_[i][j])
 
@@ -141,102 +141,31 @@ mse_ = hist_list.mse
 loss_ = hist_list.loss
 mae_ = hist_list.mae
 
-dmse = []
+rdmse = []
 dloss = []
 dmae = []
 
 for i in range(4):
     for j in range(40):
-        dmse.append(mse_[i][j])
+        rdmse.append(mse_[i][j] * 0.5)
         dloss.append(loss_[i][j])
         dmae.append(mae_[i][j])
 
 # =============================================================================
-# # First plot with and without drop out
+# # Plot with and without drop out
 # =============================================================================
-        
+ 
 # make them pretty  
-fig = plt.figure(figsize = (16,3))
-plt.subplot(1, 2, 1)
-plt.plot(mse)
-plt.plot(dmse, label = 'with Dropout')
+plt.figure(figsize=(11,5))
+plt.plot(rdmse, label = 'with Regularization')
+plt.plot(rmse)
 plt.xlabel('Accumulated epochs')
 plt.ylabel('MSE')
 plt.legend()
 plt.grid()
-plt.yticks(np.linspace(1000, 10000, 5))
-plt.title("Mean squared error during \n Nested Cross-Validation with 4 splits and 40 epochs")
-plt.subplot(1, 2, 2)
-plt.plot(mae)
-plt.plot(dmae, label = 'with Dropout')
-plt.xlabel('Accumulated epochs')
-plt.ylabel('MAE (£/Mwh)')
-plt.yticks(np.linspace(20, 90, 5))
-plt.grid()
-plt.legend()
-plt.title("Mean absolute error during \nNested Cross-Validation with 4 splits and 40 epochs")
-
-# =============================================================================
-# # Model with Batch Normalization
-# =============================================================================
-
-def regressor_tunning(n_hidden = 2, n_neurons = 11, optimizer = 'RMSprop'):
-    model = Sequential()
-    model.add(keras.layers.Dense(output_dim = n_neurons, kernel_initializer = 'he_normal', input_dim = 15))
-    model.add(keras.layers.LeakyReLU(alpha = 0.2))
-    for layer in range(n_hidden):
-        model.add(BatchNormalization())
-        model.add(keras.layers.Dense(n_neurons, use_bias = False, kernel_initializer = 'he_normal'))
-        model.add(keras.layers.LeakyReLU(alpha = 0.2))
-    model.add(BatchNormalization())
-    model.add(Dense(output_dim = 1, activation = 'linear',  use_bias = False, kernel_initializer = 'he_normal'))
-    model.compile(loss = 'mse', metrics = ['mse', 'mae'], optimizer = optimizer)
-    return model
-
-hist_list = []
-count = 1
-
-
-for train_index, test_index in tscv.split(X_train):
-      X_train_split, X_test_split = X_train[train_index], X_train[test_index]
-      y_train_split, y_test_split = y_train[train_index], y_train[test_index]
-      hist = regressor.fit(X_train_split, y_train_split, batch_size = 10, epochs = 40)
-      hist_list.append(hist.history)
-      print(count)
-      count = count + 1
-
-mse_bn = []
-mae_bn = []
-
-for i in range(4):
-    for j in range(40):
-        mse_bn.append(hist_list[i]['mse'][j])
-        mae_bn.append(hist_list[i]['mae'][j])
-        
-        
-# =============================================================================
-# Second plot with and without Batch Normalizations
-# =============================================================================
-
-# make them pretty  
-fig = plt.figure(figsize = (16,3))
-
-plt.subplot(1, 2, 1)
-plt.plot(mse_bn, label = 'with Batch Normalization')
-plt.plot(mse)
-plt.xlabel('Accumulated epochs')
-plt.ylabel('MSE')
-plt.legend()
-plt.grid()
-plt.title("Mean squared error during \n Nested Cross-Validation with 4 splits and 40 epochs")
-
-plt.subplot(1, 2, 2)
-plt.plot(mae_bn, label = 'with Batch Normalization')
-plt.plot(mae)
-plt.xlabel('Accumulated epochs')
-plt.ylabel('MAE (£/Mwh)')
-plt.legend()
-plt.grid()
-plt.title("Mean absolute error during \nNested Cross-Validation with 4 splits and 40 epochs")
+plt.minorticks_on()
+plt.grid(which='major', linestyle='-', linewidth='0.5')
+plt.grid(which='minor', linestyle=':', linewidth='0.5')
+plt.title('ANN: RMSE with and without regularization')
 
 

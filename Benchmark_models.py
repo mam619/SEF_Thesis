@@ -1,9 +1,11 @@
 # =============================================================================
+# =============================================================================
 # Benchmark models: 
-# Mean values 
-# Naive (Current SP)
-# Naive (last day SP)
-# Naive (Last Week SP)
+# # Mean values 
+# # Naive (Current SP)
+# # Naive (last day SP)
+# # Naive (Last Week SP)
+# =============================================================================
 # =============================================================================
 
 import pandas as pd
@@ -12,11 +14,13 @@ import matplotlib.pyplot as plt
 from sklearn.model_selection import train_test_split
 from sklearn import metrics
 
+# =============================================================================
 # import data // no need to shift data as it has already been done
+# =============================================================================
 data = pd.read_csv('Data_set_1.csv', index_col = 0)
 
-# 2017 & 2018 data
-data = data.loc[data.index > 2017000000, :]
+# 2018 data
+data = data.loc[data.index > 2018000000, :]
 
 # reset index
 data.reset_index(inplace = True)
@@ -29,9 +33,9 @@ data.dropna(inplace = True)
 X = data.iloc[:, 0:21]
 y = data.loc[:, 'Offers']
 
-# divide data into train and test with 20% test data
+# divide data into train and test with 15% test data
 X_train, X_test, y_train, y_test = train_test_split(
-         X, y, test_size = 0.2, shuffle=False)
+         X, y, test_size = 0.15, shuffle=False)
 
 w = 48
 # create individual data set for binary spike creation with droped nan values
@@ -112,17 +116,6 @@ mse_mean_normal = metrics.mean_squared_error(y_test_normal, y_mean_normal)
 mae_mean_normal = metrics.mean_absolute_error(y_test_normal, y_mean_normal)
 
 print("For Mean benchmark on normal regions rmse: {}, mae: {} and mse: {}".format(rmse_mean_normal, mae_mean_normal, mse_mean_normal))
-
-# Some plotting
-plt.figure(figsize=(10,5))
-plt.plot(np.arange(0, len(y_test)),y_test, linewidth = 1, label = 'Real value', color = 'green')
-plt.plot(np.arange(0, len(y_test)), y_pred_mean - y_test, linewidth = 1, label = 'Residual Error')
-plt.plot(np.arange(0, len(y_test)),y_pred_mean, linewidth = 1.5, label = 'Constant value prediction', color = 'black')
-plt.legend()
-plt.xlabel('Last 4 months of 2018')
-plt.ylabel('£/MWh')
-plt.title('Plotting of true values with constant value \nprediction (using trainning set mean value)\n Residual error also included ')
-plt.show()
 
 # =============================================================================
 # Naive Benchmark (Most recent SP) - general
@@ -349,17 +342,121 @@ mse_normal = [mse_mean_normal, mse_naive1_normal, mse_naive2_normal, mse_naive3_
 
 results = pd.DataFrame({'rmse': rmse,
                         'mae': mae, 
-                        'mse': mse, 
                         'rmse_spike': rmse_spike, 
                         'rmse_normal': rmse_normal,
                         'mae_spike': mae_spike,
-                        'mae_normal': mae_normal,
-                        'mse_spike': mse_spike,
-                        'mse_normal': mse_normal})
+                        'mae_normal': mae_normal})
 
 results['index'] = ['Mean_benchmark', 'Naive_1', 'Naive_2', 'Naive_3']
 results.set_index('index', inplace = True)
 
 results.to_csv('Results_Benchmarks.csv')
 
-#results = results.T
+# =============================================================================
+# Plotting results
+# =============================================================================
+
+# plot window
+w_plot = 96
+fontsize = 13
+
+Residual = list(y_test) - y_pred_mean
+
+plt.figure(figsize=(11,6))
+plt.subplot(2, 2, 1)
+plt.plot(np.arange(0, (w_plot)), y_test[-w_plot:], label = 'Real values', linewidth = 1.5, color = 'steelblue')
+plt.plot(np.arange(0, (w_plot)), y_pred_mean[-w_plot:], label = 'Predicted values', linewidth = 1.2, color= 'deepskyblue')
+plt.plot(np.arange(0, (w_plot)), Residual[-w_plot:], label = 'Residual error', linewidth = 0.8, color = 'slategrey')
+plt.fill_between(np.arange(0, (w_plot)),  data['spike_lowerlim'][-w_plot:],data['spike_upperlim'][-w_plot:], facecolor='skyblue', alpha=0.5, label = 'Not spike regions')
+plt.xlim(0, w_plot - 1)
+plt.ylim(-160, 260)
+plt.minorticks_on()
+plt.grid(which='major', linestyle='-', linewidth='0.5')
+plt.grid(which='minor', linestyle=':', linewidth='0.5')
+plt.xlabel('Accumulated SP', fontsize = fontsize)
+plt.ylabel('(£/MWh)', fontsize = fontsize)
+plt.xticks(fontsize = fontsize)
+plt.yticks(fontsize = fontsize)
+plt.title('Benchmark 1: Training Mean', fontsize = fontsize + 2)
+plt.tight_layout()
+
+Residual = list(y_test) - y_naive1
+
+plt.subplot(2, 2, 2)
+plt.plot(np.arange(0, (w_plot)), y_test[-w_plot:], label = 'Real values', linewidth = 1.5, color = 'steelblue')
+plt.plot(np.arange(0, (w_plot)), y_naive1[-w_plot:], label = 'Predicted values', linewidth = 1.2, color= 'deepskyblue')
+plt.plot(np.arange(0, (w_plot)), Residual[-w_plot:], label = 'Residual error', linewidth = 0.8, color = 'slategrey')
+plt.fill_between(np.arange(0, (w_plot)),  data['spike_lowerlim'][-w_plot:],data['spike_upperlim'][-w_plot:], facecolor='skyblue', alpha=0.5, label = 'Not spike regions')
+plt.xlim(0, w_plot - 1)
+plt.ylim(-160, 260)
+plt.xticks(fontsize = 20)
+plt.minorticks_on()
+plt.grid(which='major', linestyle='-', linewidth='0.5')
+plt.grid(which='minor', linestyle=':', linewidth='0.5')
+plt.xlabel('Accumulated SP', fontsize = fontsize)
+plt.ylabel('(£/MWh)', fontsize = fontsize)
+plt.xticks(fontsize = fontsize)
+plt.yticks(fontsize = fontsize)
+plt.title('Benchmark 2: Previous SP', fontsize = fontsize + 2)
+plt.tight_layout()
+
+Residual = list(y_test) - y_naive2
+
+plt.subplot(2, 2, 3)
+plt.plot(np.arange(0, (w_plot)), y_test[-w_plot:], label = 'Real values', linewidth = 1.5, color = 'steelblue')
+plt.plot(np.arange(0, (w_plot)), y_naive2[-w_plot:], label = 'Predicted values', linewidth = 1.2, color= 'deepskyblue')
+plt.plot(np.arange(0, (w_plot)), Residual[-w_plot:], label = 'Residual error', linewidth = 0.8, color = 'slategrey')
+plt.fill_between(np.arange(0, (w_plot)),  data['spike_lowerlim'][-w_plot:],data['spike_upperlim'][-w_plot:], facecolor='skyblue', alpha=0.5, label = 'Not spike regions')
+plt.xlim(0, w_plot - 1)
+plt.ylim(-160, 260)
+plt.minorticks_on()
+plt.grid(which='major', linestyle='-', linewidth='0.5')
+plt.grid(which='minor', linestyle=':', linewidth='0.5')
+plt.xlabel('Accumulated SP', fontsize = fontsize)
+plt.ylabel('(£/MWh)', fontsize = fontsize)
+plt.xticks(fontsize = fontsize)
+plt.yticks(fontsize = fontsize)
+plt.title('Benchmark 3: Previous day SP', fontsize = fontsize + 2)
+plt.tight_layout()
+
+Residual = list(y_test) - y_naive3
+
+plt.subplot(2, 2, 4)
+plt.plot(np.arange(0, (w_plot)), y_test[-w_plot:], label = 'Real values', linewidth = 1.5, color = 'steelblue')
+plt.plot(np.arange(0, (w_plot)), y_naive3[-w_plot:], label = 'Predicted values', linewidth = 1.2, color= 'deepskyblue')
+plt.plot(np.arange(0, (w_plot)), Residual[-w_plot:], label = 'Residual error', linewidth = 0.8, color = 'slategrey')
+plt.fill_between(np.arange(0, (w_plot)),  data['spike_lowerlim'][-w_plot:],data['spike_upperlim'][-w_plot:], facecolor='skyblue', alpha=0.5, label = 'Not spike regions')
+plt.xlim(0, w_plot -1)
+plt.ylim(-160, 260)
+plt.minorticks_on()
+plt.grid(which='major', linestyle='-', linewidth='0.5')
+plt.grid(which='minor', linestyle=':', linewidth='0.5')
+plt.xlabel('Accumulated SP', fontsize = fontsize)
+plt.ylabel('(£/MWh)', fontsize = fontsize)
+plt.xticks(fontsize = fontsize)
+plt.yticks(fontsize = fontsize)
+plt.title('Benchmark 4: Previous week SP', fontsize = fontsize + 2)
+plt.tight_layout()
+plt.savefig('Plot_all_4_Benchmarks.png')
+
+# save legend
+plt.figure(figsize=(10,4))
+plt.plot(np.arange(0, (w_plot)), y_test[-w_plot:], label = 'Real values', linewidth = 1.5, color = 'steelblue')
+plt.plot(np.arange(0, (w_plot)), y_naive3[-w_plot:], label = 'Predicted values', linewidth = 1.2, color= 'deepskyblue')
+plt.plot(np.arange(0, (w_plot)), Residual[-w_plot:], label = 'Residual error', linewidth = 0.8, color = 'slategrey')
+plt.fill_between(np.arange(0, (w_plot)),  data['spike_lowerlim'][-w_plot:],data['spike_upperlim'][-w_plot:], facecolor='skyblue', alpha=0.5, label = 'Not spike regions')
+plt.xlim(0, w_plot -1)
+plt.ylim(-160, 260)
+plt.minorticks_on()
+plt.grid(which='major', linestyle='-', linewidth='0.5')
+plt.grid(which='minor', linestyle=':', linewidth='0.5')
+plt.xlabel('Accumulated SP', fontsize = fontsize)
+plt.ylabel('(£/MWh)', fontsize = fontsize)
+plt.xticks(fontsize = fontsize)
+plt.yticks(fontsize = fontsize)
+plt.title('Benchmark 4: Previous week SP', fontsize = fontsize + 2)
+plt.legend(loc='upper center', bbox_to_anchor=(0.5, -0.05),
+          fancybox=True, shadow=True, ncol=5)
+plt.tight_layout()
+plt.savefig('Plot_Benchmark_Legend.png')
+
