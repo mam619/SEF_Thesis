@@ -1,0 +1,26 @@
+,rmse_general,mae_general,rmse_spike,mae_spike,rmse_normal,mae_normal
+"(1, array(['PrevWeek'], dtype=object))",32.96929950402359,23.516916685583194,65.79246582230009,55.17231132711355,23.623496755847395,18.352087208982624
+"(2, array(['Im_Pr', 'PrevDay'], dtype=object))",39.480995655402694,27.086625527626115,66.69605772618308,53.67867982371084,32.97400634224137,22.747920002124566
+"(3, array(['TSDF', 'Im_Pr', 'PrevDay'], dtype=object))",33.57629282185106,22.50826720695073,62.363752939256,50.37017306182794,26.014343892633512,17.962375374488303
+"(4, array(['TSDF', 'Im_Pr', 'PrevDay', 'PrevWeek'], dtype=object))",33.081579549788444,22.135220960128922,63.64291226262796,53.54525131451613,24.740471748391585,17.01042460406224
+"(5, array(['APXP', 'TSDF', 'Im_Pr', 'PrevDay', 'DA_price_france'],
+      dtype=object))",33.18149298396163,22.38358309653092,62.38147765158286,51.17072741666666,25.411201839760615,17.68673130394737
+"(6, array(['APXP', 'TSDF', 'Im_Pr', 'PrevDay', 'PrevWeek', 'DA_price_france'],
+      dtype=object))",33.82957564533345,22.297544635935143,64.89089775127775,52.92142925537635,25.37980002979994,17.301014162938596
+"(7, array(['APXP', 'TSDF', 'Im_Pr', 'In_gen', 'PrevDay', 'PrevWeek',
+       'DA_price_france'], dtype=object))",33.965150432820344,21.782415378016587,64.25798819225389,52.44899588037634,25.848821328575678,16.778918734649125
+"(8, array(['APXP', 'Rene', 'TSDF', 'Im_Pr', 'In_gen', 'PrevDay', 'PrevWeek',
+       'DA_price_france'], dtype=object))",34.02784462940231,22.790852383672696,62.922850524896724,51.213161412634406,26.473093830079478,18.153526349122806
+"(9, array(['APXP', 'Rene', 'TSDF', 'Im_Pr', 'In_gen', 'PrevDay', 'PrevWeek',
+       'DA_price_france', 'DA_imb_France'], dtype=object))",34.22089883514394,22.81029732409502,63.13979906798461,51.24014862768817,26.67747923126027,18.171740707894735
+"(10, array(['APXP', 'Rene', 'TSDF', 'Im_Pr', 'In_gen', 'PrevDay', 'PrevWeek',
+       'DA_margin', 'DA_price_france', 'DA_imb_France'], dtype=object))",35.755194028725754,23.537505192873304,62.30823534674595,49.89384464650538,29.21625372435042,19.237258404824562
+"(11, array(['Ren_R', 'APXP', 'Rene', 'TSDF', 'Im_Pr', 'In_gen', 'PrevDay',
+       'PrevWeek', 'DA_margin', 'DA_price_france', 'DA_imb_France'],
+      dtype=object))",35.11296008149514,23.190955406862745,62.35070686692316,50.30969791532258,28.280483771091067,18.76631654144737
+"(12, array(['Ren_R', 'APXP', 'Rene', 'TSDF', 'Im_Pr', 'In_gen', 'PrevDay',
+       'PrevWeek', 'DA_margin', 'DA_price_france', 'dino_bin',
+       'DA_imb_France'], dtype=object))",37.215005087583435,23.811013611236802,61.603850402709945,49.253352642473125,31.491791031552967,19.65989320789474
+"(13, array(['Ren_R', 'APXP', 'Rene', 'TSDF', 'Im_Pr', 'In_gen', 'PrevDay',
+       'PrevWeek', 'DA_margin', 'DA_price_france', 'dino_bin',
+       'ratio_offers_vol', 'DA_imb_France'], dtype=object))",37.22475953529876,23.837956569570135,62.24828666201466,49.72175401209679,31.297844319476653,19.61480874122807
