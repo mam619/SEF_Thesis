@@ -12,6 +12,7 @@ import matplotlib.pyplot as plt
 # import data & treat it
 # =============================================================================
 data = pd.read_csv('Results_Random_Forest_Regression_FS.csv', index_col = 0)
+data.reset_index(inplace = True)
 
 rmse_gen = data.rmse_general
 rmse_gen = rmse_gen.round(1)
@@ -19,7 +20,8 @@ rmse_spi = data.rmse_spike
 rmse_spi = rmse_spi.round(1)
 rmse_nor = data.rmse_normal.round(1)
 
-fontsize = 14
+fontsize = 18
+
 
 # RESULTS ON ALL TEST SET
 plt.figure(figsize = (14,8))
@@ -30,12 +32,14 @@ plt.xlim(0.5, 13.5)
 plt.minorticks_on()
 plt.grid(which='major', linestyle='-', linewidth='0.5')
 plt.grid(which='minor', linestyle=':', linewidth='0.5')
-plt.xlabel('Number of features', fontsize = fontsize)
+#plt.xlabel('Number of features', fontsize = fontsize)
 plt.ylabel('(£/MWh)', fontsize = fontsize)
-plt.xticks([1,2,3,4,5,6,7,8,9,10,11,12,13], fontsize = fontsize)
-plt.yticks(np.linspace(rmse_gen.min(), rmse_gen.max(), 5), fontsize = fontsize)
-plt.title('Feature Selection results for All test set', fontsize = fontsize + 2)
-plt.legend(loc = 'lower right')
+plt.xticks([1,2,3,4,5,6,7,8,9,10,11,12,13], [], fontsize = fontsize)
+plt.ylim(30, 50)
+plt.xlim(1,13)
+plt.yticks(fontsize = fontsize)
+plt.title('Feature Selection results on all regions', fontsize = fontsize + 3)
+plt.legend(loc = 'upper right', fontsize = fontsize)
 
 
 plt.subplot(3, 1, 2)
@@ -44,12 +48,14 @@ plt.xlim(0.5, 13.5)
 plt.minorticks_on()
 plt.grid(which='major', linestyle='-', linewidth='0.5')
 plt.grid(which='minor', linestyle=':', linewidth='0.5')
-plt.xlabel('Number of features', fontsize = fontsize)
+#plt.xlabel('Number of features', fontsize = fontsize)
 plt.ylabel('(£/MWh)', fontsize = fontsize)
-plt.xticks([1,2,3,4,5,6,7,8,9,10,11,12,13], fontsize = fontsize)
-plt.yticks(np.linspace(rmse_spi.min(), rmse_spi.max(), 5), fontsize = fontsize)
-plt.title('Feature Selection results for Spike regions', fontsize = fontsize + 2)
-plt.legend(loc = 'upper right')
+plt.xticks([1,2,3,4,5,6,7,8,9,10,11,12,13], [], fontsize = fontsize)
+plt.ylim(60.0, 70)
+plt.xlim(1,13)
+plt.yticks(fontsize = fontsize)
+#plt.title('Feature Selection results for Spike regions', fontsize = fontsize + 2)
+plt.legend(loc = 'upper right', fontsize = fontsize)
 
 
 plt.subplot(3, 1, 3)
@@ -61,8 +67,10 @@ plt.grid(which='minor', linestyle=':', linewidth='0.5')
 plt.xlabel('Number of features', fontsize = fontsize)
 plt.ylabel('(£/MWh)', fontsize = fontsize)
 plt.xticks([1,2,3,4,5,6,7,8,9,10,11,12,13], fontsize = fontsize)
-plt.yticks(np.linspace(rmse_nor.min(), rmse_nor.max(), 5), fontsize = fontsize)
-plt.title('Feature Selection results for Normal Regions', fontsize = fontsize + 2)
-plt.legend(loc = 'lower right')
+plt.yticks(fontsize = fontsize)
+plt.ylim(20, 45)
+plt.xlim(1,13)
+#plt.title('Feature Selection results for Normal Regions', fontsize = fontsize + 2)
+plt.legend(loc = 'lower right', fontsize = fontsize)
 plt.tight_layout()
 plt.savefig('Plot_Random_Forest_FS_Results.png')

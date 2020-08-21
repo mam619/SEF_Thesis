@@ -33,7 +33,8 @@ data.drop('index', axis = 1, inplace = True)
 # =============================================================================
 # Divide features and labels
 # =============================================================================
-X = data.loc[:, ['APXP', 'TSDF', 'Im_Pr', 'PrevDay', 'DA_price_france']]
+
+X = data.loc[:, ['APXP', 'TSDF', 'Im_Pr', 'In_gen', 'PrevDay', 'DA_price_france']]
 y = data.loc[:, 'Offers']
 
 X.fillna(X.median(), inplace = True)
@@ -62,7 +63,7 @@ X_test = sc_X.transform(X_test)
 from sklearn.ensemble import RandomForestRegressor
 
 # create regressor 
-regressor = RandomForestRegressor(n_estimators = 80)
+regressor = RandomForestRegressor(n_estimators = 60)
 regressor.fit(X_train, y_train)
 
 # =============================================================================

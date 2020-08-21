@@ -62,8 +62,7 @@ X_test = sc_X.transform(X_test)
 from sklearn.svm import SVR
 
 # create regressor 
-regressor = SVR(kernel = 'poly',
-                gamma = 'scale') 
+regressor = SVR(kernel = 'linear') 
 
                 # kernel = ['linear', 'poly', 'rbf', 'sigmoid']
                 # gamma =  ['scale',  'auto']

@@ -171,18 +171,22 @@ results = pd.DataFrame({'rmse_general': rmse_gen,
 
 results.to_csv('Results_Polynomial_Regression_Predictive_window.csv')
 
-plt.figure(figsize=(10,4))
+fontsize = 13
+
+plt.figure(figsize=(10,3.7))
 plt.minorticks_on()
 plt.grid(which='major', linestyle='-', linewidth='0.5')
 plt.grid(which='minor', linestyle=':', linewidth='0.5')
-plt.title('Polynomial Regression: Averaged RMSE for different\n predictive windows')
-plt.plot(rmse_gen, label = 'Overall error')
+plt.title('Polynomial Regression: Averaged RMSE for different prediction windows', fontsize = fontsize + 2)
+plt.plot(rmse_gen, label = 'On the whole test set')
 plt.plot(rmse_spi, label = 'Spike regions')
 plt.plot(rmse_nor, label = 'Normal regions')
-plt.legend()
-plt.ylabel('RMSE (£/MWh)')
-plt.xlabel('Predictive window (in months)')
-plt.xticks(list(range(len(rmse_spi))), dates_labels)
+plt.xlim(0, 11)
+plt.legend(loc = 'upper right', fontsize = fontsize - 2)
+plt.ylabel('RMSE (£/MWh)', fontsize = fontsize)
+plt.xlabel('Predictive window (in months)', fontsize = fontsize)
+plt.xticks(list(range(len(rmse_spi))), dates_labels, fontsize = fontsize)
+plt.yticks(fontsize = fontsize)
 plt.tight_layout()
 plt.savefig('RMSE_predictive_window.png')
 

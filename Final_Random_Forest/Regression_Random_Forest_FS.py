@@ -61,7 +61,7 @@ X_test = sc_X.transform(X_test)
 from sklearn.ensemble import RandomForestRegressor
 
 # create regressor 
-regressor = RandomForestRegressor(n_estimators = 80)
+regressor = RandomForestRegressor(n_estimators = 60)
 
 # to append features chosen 
 f_chosen_ = []
@@ -116,7 +116,7 @@ for i in range(len(results_fs)):
     X_test = sc_X.transform(X_test)
 
     # create linear regressor 
-    regressor = RandomForestRegressor(n_estimators = 80)
+    regressor = RandomForestRegressor(n_estimators = 60)
     regressor.fit(X_train, y_train)
 
     # predict for X_test  
