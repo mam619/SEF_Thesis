@@ -18,7 +18,7 @@ rmse_spi = data.rmse_spike
 rmse_spi = rmse_spi.round(1)
 rmse_nor = data.rmse_normal.round(1)
 
-fontsize = 14
+fontsize = 15
 
 # RESULTS ON ALL TEST SET
 plt.figure(figsize = (14,8))
@@ -31,6 +31,7 @@ plt.grid(which='major', linestyle='-', linewidth='0.5')
 plt.grid(which='minor', linestyle=':', linewidth='0.5')
 plt.xlabel('Number of features', fontsize = fontsize)
 plt.ylabel('(£/MWh)', fontsize = fontsize)
+plt.xlim(1, 12)
 plt.xticks([1,2,3,4,5,6,7,8,9,10,11,12,13], fontsize = fontsize)
 plt.yticks(np.linspace(rmse_gen.min(), rmse_gen.max(), 5), fontsize = fontsize)
 plt.title('Feature Selection results for All test set', fontsize = fontsize + 2)
@@ -45,6 +46,7 @@ plt.grid(which='major', linestyle='-', linewidth='0.5')
 plt.grid(which='minor', linestyle=':', linewidth='0.5')
 plt.xlabel('Number of features', fontsize = fontsize)
 plt.ylabel('(£/MWh)', fontsize = fontsize)
+plt.xlim(1, 12)
 plt.xticks([1,2,3,4,5,6,7,8,9,10,11,12,13], fontsize = fontsize)
 plt.yticks(np.linspace(rmse_spi.min(), rmse_spi.max(), 5), fontsize = fontsize)
 plt.title('Feature Selection results for Spike regions', fontsize = fontsize + 2)
@@ -59,6 +61,7 @@ plt.grid(which='major', linestyle='-', linewidth='0.5')
 plt.grid(which='minor', linestyle=':', linewidth='0.5')
 plt.xlabel('Number of features', fontsize = fontsize)
 plt.ylabel('(£/MWh)', fontsize = fontsize)
+plt.xlim(1, 12)
 plt.xticks([1,2,3,4,5,6,7,8,9,10,11,12,13], fontsize = fontsize)
 plt.yticks(np.linspace(rmse_nor.min(), rmse_nor.max(), 5), fontsize = fontsize)
 plt.title('Feature Selection results for Normal Regions', fontsize = fontsize + 2)

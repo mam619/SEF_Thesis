@@ -35,7 +35,7 @@ data.drop('index', axis = 1, inplace = True)
 # =============================================================================
 # Divide features and labels
 # =============================================================================
-X = data.loc[:, ['PrevDay', 'APXP', 'LOLP', 'DA_price_france', 'TSDF', 'Im_Pr']]
+X = data.iloc[:, 0:14]
 y = data.loc[:, 'Offers']
 
 X.fillna(method = 'ffill', inplace = True)
@@ -71,12 +71,12 @@ from keras import optimizers
 X_train = np.nan_to_num(X_train)
 X_test = np.nan_to_num(X_test)
 
-def regressor_tunning(n_hidden = 1, 
+def regressor_tunning(n_hidden = 4, 
                       n_neurons = 20, 
                       kernel_initializer = "he_normal",
                       bias_initializer = initializers.Ones()):
     model = Sequential()
-    model.add(Dense(units = n_neurons, input_dim = 6))
+    model.add(Dense(units = n_neurons, input_dim = 14))
     model.add(keras.layers.LeakyReLU(alpha = 0.2))
     model.add(Dropout(rate = 0.2))
     for layer in range(n_hidden):
@@ -91,7 +91,7 @@ def regressor_tunning(n_hidden = 1,
 # =============================================================================
 # parameters for the ANN
 # =============================================================================
-splits = 8 
+splits = 8
 epochs = 180
 
 # =============================================================================
@@ -116,7 +116,7 @@ for train_index, test_index in tscv.split(X_train):
     hist = regressor.fit(X_train_split, y_train_split,  
                          shuffle = False, 
                          validation_split = 0.2,
-                         batch_size = 20, 
+                         batch_size = 50, 
                          epochs = epochs)
     hist_list = hist_list.append(hist.history, ignore_index = True)
     print(count)
@@ -147,36 +147,40 @@ for i in range(splits):
 # =============================================================================
 import matplotlib.pyplot as plt
 
+fontsize = 13
+
 # make them pretty  
-fig = plt.figure(figsize = (16,4))
-plt.plot(rmse, label = 'train')
-plt.plot(val_rmse, label = 'test')
-plt.xlabel('Accumulated epochs', fontsize = 13)
-plt.ylabel('RMSE (£/MWh)', fontsize = 13)
-plt.legend(fontsize = 13)
+fig = plt.figure(figsize = (14,3))
+
+plt.plot(rmse, label = 'Train set')
+plt.plot(val_rmse, label = 'Validation set')
+plt.xlabel('Accumulated epochs', fontsize = fontsize)
+plt.ylabel('RMSE (£/MWh)', fontsize = fontsize)
+plt.legend(fontsize = fontsize)
+plt.yticks(np.linspace(20, 120, 5), fontsize = fontsize)
+plt.xticks(fontsize = fontsize)
 plt.minorticks_on()
-plt.yticks(np.linspace(20, 120, 5), fontsize = 13)
-plt.xticks(fontsize = 13)
 plt.grid(which='major', linestyle='-', linewidth='0.5')
 plt.grid(which='minor', linestyle=':', linewidth='0.5')
 #plt.yticks(np.linspace(1000, 18000, 5))
-plt.title("RMSE during Nested Cross-Validation\n with {} splits for 4 months of data ".format(splits), fontsize = 14)
-#plt.savefig('Plot_ANN_RMSE_during_training.png')
+plt.title("RMSE during training for 4 months of data ".format(splits), fontsize = fontsize + 2)
+plt.savefig('Plot_ANN_RMSE_during_training_Final.png')
 plt.show()
 
-fig = plt.figure(figsize = (16,4))
-plt.plot(mae, label = 'train')
-plt.plot(val_mae, label = 'test')
-plt.legend(fontsize = 13)
-plt.xlabel('Accumulated epochs', fontsize = 13)
-plt.ylabel('MAE (£/Mwh)', fontsize = 13)
-plt.yticks(np.linspace(20, 120, 5), fontsize = 13)
-plt.xticks(fontsize = 13)
+fig = plt.figure(figsize = (14,3))
+
+plt.plot(mae, label = 'Train set')
+plt.plot(val_mae, label = 'Validation set')
+plt.legend(fontsize = fontsize)
+plt.xlabel('Accumulated epochs', fontsize = fontsize)
+plt.ylabel('MAE (£/Mwh)', fontsize = fontsize)
+plt.yticks(np.linspace(20, 120, 5), fontsize = fontsize)
+plt.xticks(fontsize = fontsize)
 plt.minorticks_on()
 plt.grid(which='major', linestyle='-', linewidth='0.5')
 plt.grid(which='minor', linestyle=':', linewidth='0.5')
-plt.title("MAE during Nested Cross-Validation\n with {} splits for 4 months of data".format(splits), fontsize = 14)
-#plt.savefig('Plot_ANN_MAE_during_training.png')
+plt.title("MAE during training for 4 months of data".format(splits), fontsize = fontsize + 2)
+plt.savefig('Plot_ANN_MAE_during_training_Final.png')
 plt.show()
 
 # =============================================================================
@@ -268,24 +272,24 @@ results = pd.DataFrame({'rmse_general': rmse_gen,
                     
                         'mae_normal': mae_nor})
 
-#results.to_csv('Results_ANN.csv')
+results.to_csv('Results_ANN.csv')
 
 # =============================================================================
 # plot results for the end od 2018
 # =============================================================================
 
 w_plot = 144 # 3 days
-fontsize = 13
+fontsize = 16
 
 y_pred = y_pred.reshape(len(y_pred))
 
 Residual = list(y_test) - y_pred
 
-plt.figure(figsize=(11,4))
-plt.plot(np.arange(0, (w_plot)), y_test[-w_plot:], label = 'Real values', linewidth = 1.5, color = 'steelblue')
-plt.plot(np.arange(0, (w_plot)), y_pred[-w_plot:], label = 'Predicted values', linewidth = 1.2, color= 'deepskyblue')
-plt.plot(np.arange(0, (w_plot)), Residual[-w_plot:], label = 'Residual error', linewidth = 0.8, color = 'slategrey')
-plt.fill_between(np.arange(0, (w_plot)),  data['spike_lowerlim'][-w_plot:],data['spike_upperlim'][-w_plot:], facecolor='skyblue', alpha=0.5, label = 'Not spike regions')
+plt.figure(figsize=(12.5,4))
+plt.plot(np.arange(0, (w_plot)), y_test[-w_plot:], label = 'Real values', linewidth = 2, color = 'steelblue')
+plt.plot(np.arange(0, (w_plot)), y_pred[-w_plot:], label = 'Predicted values', linewidth = 1.8, color= 'deepskyblue')
+plt.plot(np.arange(0, (w_plot)), Residual[-w_plot:], label = 'Residual error', linewidth = 1, color = 'slategrey')
+plt.fill_between(np.arange(0, (w_plot)),  data['spike_lowerlim'][-w_plot:],data['spike_upperlim'][-w_plot:], facecolor='skyblue', alpha=0.5, label = 'Spike delimitator')
 plt.xlim(0, w_plot - 1)
 plt.ylim(-100, 260)
 plt.minorticks_on()
@@ -296,15 +300,15 @@ plt.ylabel('RMSE (£/MWh)', fontsize = fontsize)
 plt.xticks(fontsize = fontsize)
 plt.yticks([-100, -50, 0, 50,100, 150, 200, 250],[-100, -50, 0, 50, 100, 150, 200, 250],  fontsize = fontsize)
 plt.title('ANN predictions', fontsize = fontsize + 2)
-plt.legend(loc = 'lower right')
+plt.legend(loc = 'lower right', fontsize = fontsize - 2)
 plt.tight_layout()
-#plt.savefig('Plot_ANN_final.png')
+plt.savefig('Plot_ANN_final.png')
 
-plt.figure(figsize=(11,4))
-plt.plot(np.arange(0, 150), y_test[-250:-100], label = 'Real values', linewidth = 1.5, color = 'steelblue')
-plt.plot(np.arange(0, 150), y_pred[-250:-100], label = 'Predicted values', linewidth = 1.2, color= 'deepskyblue')
-plt.plot(np.arange(0, 150), Residual[-250:-100], label = 'Residual error', linewidth = 0.8, color = 'slategrey')
-plt.fill_between(np.arange(0, 150),  data['spike_lowerlim'][-250:-100],data['spike_upperlim'][-250:-100], facecolor='skyblue', alpha=0.5, label = 'Not spike regions')
+plt.figure(figsize=(12.5,4))
+plt.plot(np.arange(0, 150), y_test[-250:-100], label = 'Real values', linewidth = 2, color = 'steelblue')
+plt.plot(np.arange(0, 150), y_pred[-250:-100], label = 'Predicted values', linewidth = 1.8, color= 'deepskyblue')
+plt.plot(np.arange(0, 150), Residual[-250:-100], label = 'Residual error', linewidth = 1, color = 'slategrey')
+plt.fill_between(np.arange(0, 150),  data['spike_lowerlim'][-250:-100],data['spike_upperlim'][-250:-100], facecolor='skyblue', alpha=0.5, label = 'Spike delimitator')
 plt.ylim(-100, 260)
 plt.xlim(0, 150 - 1)
 plt.minorticks_on()
@@ -315,9 +319,9 @@ plt.ylabel('RMSE (£/MWh)', fontsize = fontsize)
 plt.xticks(fontsize = fontsize)
 plt.yticks([-100, -50, 0, 50,100, 150, 200, 250],[-100, -50, 0, 50, 100, 150, 200, 250],  fontsize = fontsize)
 plt.title('ANN predictions', fontsize = fontsize + 2)
-plt.legend(loc = 'lower right')
+plt.legend(loc = 'lower right', fontsize = fontsize - 2)
 plt.tight_layout()
-#plt.savefig('Plot_ANN_final_different_window.png')
+plt.savefig('Plot_ANN_final_different_window.png')
 
 y_pred = pd.Series(y_pred)
 y_pred.to_csv('Prediction_ANN.csv')
