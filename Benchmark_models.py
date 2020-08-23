@@ -169,16 +169,6 @@ mae_naive1_normal = metrics.mean_absolute_error(y_test_normal, y_naive1_normal)
 
 print("For Naive 1 benchmark on normal regions rmse: {}, mae: {} and mse: {}".format(rmse_naive1_normal, mae_naive1_normal, mse_naive1_normal))
 
-# some plotting
-plt.figure(figsize=(10,5))
-plt.plot(np.arange(0, len(y_test))[0:48],y_test[0:48], linewidth = 1, label = 'Real value', color = 'green')
-plt.plot(np.arange(0, len(y_test))[0:48],y_naive1[0:48], linewidth = 1, label = 'Most resent SP prediction', color = 'orange')
-plt.plot(np.arange(0, len(y_test))[0:48], (y_naive1 - y_test)[0:48], linewidth = 1, label = 'Residual Error')
-plt.legend()
-plt.xlabel('Last 4 months of 2018')
-plt.ylabel('£/MWh')
-plt.title('Plotting of true values with most recent SP period as prediction \n Residual error also included ')
-plt.show()
 
 # =============================================================================
 # Naive Benchmark (Previous Day same SP) - general
@@ -230,28 +220,6 @@ mse_naive2_normal = metrics.mean_squared_error(y_test_normal, y_naive2_normal)
 mae_naive2_normal = metrics.mean_absolute_error(y_test_normal, y_naive2_normal)
 
 print("For Naive 2 benchmark on normal regions rmse: {}, mae: {} and mse: {}".format(rmse_naive2_normal, mae_naive2_normal, mse_naive2_normal))
-
-
-# some plotting
-plt.figure(figsize=(10,5))
-plt.plot(np.arange(0, len(y_test))[0:48],y_test[0:48], linewidth = 1, label = 'Real value', color = 'green')
-plt.plot(np.arange(0, len(y_test))[0:48],y_naive2[0:48], linewidth = 1, label = 'Same SP form last day', color = 'orange')
-plt.plot(np.arange(0, len(y_test))[0:48], (y_naive2 - y_test)[0:48], linewidth = 1, label = 'Residual Error')
-plt.legend()
-plt.xlabel('Full day from 2018')
-plt.ylabel('£/MWh')
-plt.title('Plotting of true values with same SP from previous day \n Residual error also included ')
-plt.show()
-
-plt.figure(figsize=(10,5))
-plt.plot(np.arange(0, len(y_test)),y_test, linewidth = 1, label = 'Real value', color = 'green')
-plt.plot(np.arange(0, len(y_test)),y_naive2, linewidth = 1, label = 'Same SP form last day', color = 'orange')
-plt.plot(np.arange(0, len(y_test)), (y_naive2 - y_test), linewidth = 1, label = 'Residual Error')
-plt.legend()
-plt.xlabel('Last 4 months of 2018')
-plt.ylabel('£/MWh')
-plt.title('Plotting of true values with same SP from previous day \n Residual error also included ')
-plt.show()
 
 
 # =============================================================================
@@ -306,27 +274,6 @@ mae_naive3_normal = metrics.mean_absolute_error(y_test_normal, y_naive3_normal)
 print("For Naive 3 benchmark on normal regions rmse: {}, mae: {} and mse: {}".format(rmse_naive3_normal, mae_naive3_normal, mse_naive3_normal))
 
 
-# some plotting
-plt.figure(figsize=(10,5))
-plt.plot(np.arange(0, len(y_test))[0:48],y_test[0:48], linewidth = 1, label = 'Real value', color = 'green')
-plt.plot(np.arange(0, len(y_test))[0:48],y_naive3[0:48], linewidth = 1, label = 'Same SP form last week', color = 'orange')
-plt.plot(np.arange(0, len(y_test))[0:48], (y_naive3 - y_test)[0:48], linewidth = 1, label = 'Residual Error')
-plt.legend()
-plt.xlabel('Full day from 2018')
-plt.ylabel('£/MWh')
-plt.title('Plotting of true values with same SP from previous week \n Residual error also included ')
-plt.show()
-
-plt.figure(figsize=(10,5))
-plt.plot(np.arange(0, len(y_test)),y_test, linewidth = 1, label = 'Real value', color = 'green')
-plt.plot(np.arange(0, len(y_test)),y_naive3, linewidth = 1, label = 'Same SP form last week', color = 'orange')
-plt.plot(np.arange(0, len(y_test)), (y_naive3 - y_test), linewidth = 1, label = 'Residual Error')
-plt.legend()
-plt.xlabel('Last 4 months of 2018')
-plt.ylabel('£/MWh')
-plt.title('Plotting of true values with same SP from previous week \n Residual error also included ')
-plt.show()
-
 rmse = [rmse_mean, rmse_naive1, rmse_naive2, rmse_naive3]
 mae = [mae_mean, mae_naive1, mae_naive2, mae_naive3]
 mse = [mse_mean, mse_naive1, mse_naive2, mse_naive3]
@@ -352,22 +299,22 @@ results.set_index('index', inplace = True)
 
 results.to_csv('Results_Benchmarks.csv')
 
-# =============================================================================
+# ============================================================================
 # Plotting results
 # =============================================================================
 
 # plot window
-w_plot = 96
-fontsize = 13
+w_plot = 144
+fontsize = 14
 
 Residual = list(y_test) - y_pred_mean
 
-plt.figure(figsize=(11,6))
+plt.figure(figsize=(13,6))
 plt.subplot(2, 2, 1)
-plt.plot(np.arange(0, (w_plot)), y_test[-w_plot:], label = 'Real values', linewidth = 1.5, color = 'steelblue')
-plt.plot(np.arange(0, (w_plot)), y_pred_mean[-w_plot:], label = 'Predicted values', linewidth = 1.2, color= 'deepskyblue')
-plt.plot(np.arange(0, (w_plot)), Residual[-w_plot:], label = 'Residual error', linewidth = 0.8, color = 'slategrey')
-plt.fill_between(np.arange(0, (w_plot)),  data['spike_lowerlim'][-w_plot:],data['spike_upperlim'][-w_plot:], facecolor='skyblue', alpha=0.5, label = 'Not spike regions')
+plt.plot(np.arange(0, (w_plot)), y_test[-230: -86], label = 'Real values', linewidth = 2, color = 'steelblue')
+plt.plot(np.arange(0, (w_plot)), y_pred_mean[-230: -86], label = 'Predicted values', linewidth = 1.8, color= 'deepskyblue')
+plt.plot(np.arange(0, (w_plot)), Residual[-230: -86], label = 'Residual error', linewidth = 1, color = 'slategrey')
+plt.fill_between(np.arange(0, (w_plot)),  data['spike_lowerlim'][-230: -86],data['spike_upperlim'][-230: -86], facecolor='skyblue', alpha=0.5, label = 'Not spike regions')
 plt.xlim(0, w_plot - 1)
 plt.ylim(-160, 260)
 plt.minorticks_on()
@@ -383,10 +330,10 @@ plt.tight_layout()
 Residual = list(y_test) - y_naive1
 
 plt.subplot(2, 2, 2)
-plt.plot(np.arange(0, (w_plot)), y_test[-w_plot:], label = 'Real values', linewidth = 1.5, color = 'steelblue')
-plt.plot(np.arange(0, (w_plot)), y_naive1[-w_plot:], label = 'Predicted values', linewidth = 1.2, color= 'deepskyblue')
-plt.plot(np.arange(0, (w_plot)), Residual[-w_plot:], label = 'Residual error', linewidth = 0.8, color = 'slategrey')
-plt.fill_between(np.arange(0, (w_plot)),  data['spike_lowerlim'][-w_plot:],data['spike_upperlim'][-w_plot:], facecolor='skyblue', alpha=0.5, label = 'Not spike regions')
+plt.plot(np.arange(0, (w_plot)), y_test[-230: -86], label = 'Real values', linewidth = 1.4, color = 'steelblue')
+plt.plot(np.arange(0, (w_plot)), y_naive1[-230: -86], label = 'Predicted values', linewidth = 1.4, color= 'deepskyblue')
+plt.plot(np.arange(0, (w_plot)), Residual[-230: -86], label = 'Residual error', linewidth = 1, color = 'slategrey')
+plt.fill_between(np.arange(0, (w_plot)),  data['spike_lowerlim'][-230: -86],data['spike_upperlim'][-230: -86], facecolor='skyblue', alpha=0.5, label = 'Not spike regions')
 plt.xlim(0, w_plot - 1)
 plt.ylim(-160, 260)
 plt.xticks(fontsize = 20)
@@ -403,10 +350,10 @@ plt.tight_layout()
 Residual = list(y_test) - y_naive2
 
 plt.subplot(2, 2, 3)
-plt.plot(np.arange(0, (w_plot)), y_test[-w_plot:], label = 'Real values', linewidth = 1.5, color = 'steelblue')
-plt.plot(np.arange(0, (w_plot)), y_naive2[-w_plot:], label = 'Predicted values', linewidth = 1.2, color= 'deepskyblue')
-plt.plot(np.arange(0, (w_plot)), Residual[-w_plot:], label = 'Residual error', linewidth = 0.8, color = 'slategrey')
-plt.fill_between(np.arange(0, (w_plot)),  data['spike_lowerlim'][-w_plot:],data['spike_upperlim'][-w_plot:], facecolor='skyblue', alpha=0.5, label = 'Not spike regions')
+plt.plot(np.arange(0, (w_plot)), y_test[-230: -86], label = 'Real values', linewidth = 2, color = 'steelblue')
+plt.plot(np.arange(0, (w_plot)), y_naive2[-230: -86], label = 'Predicted values', linewidth = 1.8, color= 'deepskyblue')
+plt.plot(np.arange(0, (w_plot)), Residual[-230: -86], label = 'Residual error', linewidth = 1, color = 'slategrey')
+plt.fill_between(np.arange(0, (w_plot)),  data['spike_lowerlim'][-230: -86],data['spike_upperlim'][-230: -86], facecolor='skyblue', alpha=0.5, label = 'Not spike regions')
 plt.xlim(0, w_plot - 1)
 plt.ylim(-160, 260)
 plt.minorticks_on()
@@ -422,11 +369,11 @@ plt.tight_layout()
 Residual = list(y_test) - y_naive3
 
 plt.subplot(2, 2, 4)
-plt.plot(np.arange(0, (w_plot)), y_test[-w_plot:], label = 'Real values', linewidth = 1.5, color = 'steelblue')
-plt.plot(np.arange(0, (w_plot)), y_naive3[-w_plot:], label = 'Predicted values', linewidth = 1.2, color= 'deepskyblue')
-plt.plot(np.arange(0, (w_plot)), Residual[-w_plot:], label = 'Residual error', linewidth = 0.8, color = 'slategrey')
-plt.fill_between(np.arange(0, (w_plot)),  data['spike_lowerlim'][-w_plot:],data['spike_upperlim'][-w_plot:], facecolor='skyblue', alpha=0.5, label = 'Not spike regions')
-plt.xlim(0, w_plot -1)
+plt.plot(np.arange(0, (w_plot)), y_test[-230: -86], label = 'Real values', linewidth = 2, color = 'steelblue')
+plt.plot(np.arange(0, (w_plot)), y_naive3[-230: -86], label = 'Predicted values', linewidth = 1.8, color= 'deepskyblue')
+plt.plot(np.arange(0, (w_plot)), Residual[-230: -86], label = 'Residual error', linewidth = 1, color = 'slategrey')
+plt.fill_between(np.arange(0, (w_plot)),  data['spike_lowerlim'][-230: -86], data['spike_upperlim'][-230: -86], facecolor='skyblue', alpha=0.5, label = 'Not spike regions')
+plt.xlim(0, w_plot -1 )
 plt.ylim(-160, 260)
 plt.minorticks_on()
 plt.grid(which='major', linestyle='-', linewidth='0.5')
@@ -437,15 +384,17 @@ plt.xticks(fontsize = fontsize)
 plt.yticks(fontsize = fontsize)
 plt.title('Benchmark 4: Previous week SP', fontsize = fontsize + 2)
 plt.tight_layout()
+
 plt.savefig('Plot_all_4_Benchmarks.png')
 
+fontsize = fontsize = 16
 # save legend
 plt.figure(figsize=(10,4))
-plt.plot(np.arange(0, (w_plot)), y_test[-w_plot:], label = 'Real values', linewidth = 1.5, color = 'steelblue')
-plt.plot(np.arange(0, (w_plot)), y_naive3[-w_plot:], label = 'Predicted values', linewidth = 1.2, color= 'deepskyblue')
-plt.plot(np.arange(0, (w_plot)), Residual[-w_plot:], label = 'Residual error', linewidth = 0.8, color = 'slategrey')
-plt.fill_between(np.arange(0, (w_plot)),  data['spike_lowerlim'][-w_plot:],data['spike_upperlim'][-w_plot:], facecolor='skyblue', alpha=0.5, label = 'Not spike regions')
-plt.xlim(0, w_plot -1)
+plt.plot(np.arange(0, (w_plot)), y_test[-w_plot:], label = 'Real values', linewidth = 2, color = 'steelblue')
+plt.plot(np.arange(0, (w_plot)), y_naive3[-w_plot:], label = 'Predicted values', linewidth = 1.8, color= 'deepskyblue')
+plt.plot(np.arange(0, (w_plot)), Residual[-w_plot:], label = 'Residual error', linewidth = 1, color = 'slategrey')
+plt.fill_between(np.arange(0, (w_plot)),  data['spike_lowerlim'][-w_plot:],data['spike_upperlim'][-w_plot:], facecolor='skyblue', alpha=0.5, label = 'Spike delimitator')
+plt.xlim(0, w_plot)
 plt.ylim(-160, 260)
 plt.minorticks_on()
 plt.grid(which='major', linestyle='-', linewidth='0.5')
@@ -455,8 +404,99 @@ plt.ylabel('(£/MWh)', fontsize = fontsize)
 plt.xticks(fontsize = fontsize)
 plt.yticks(fontsize = fontsize)
 plt.title('Benchmark 4: Previous week SP', fontsize = fontsize + 2)
-plt.legend(loc='upper center', bbox_to_anchor=(0.5, -0.05),
-          fancybox=True, shadow=True, ncol=5)
+plt.legend(loc='upper center', bbox_to_anchor=(0.5, -0.21),
+          fancybox=True, shadow=True, ncol=5, fontsize = fontsize)
 plt.tight_layout()
 plt.savefig('Plot_Benchmark_Legend.png')
 
+# =============================================================================
+#  INDIVIDUAL
+# =============================================================================
+
+# plot window
+w_plot = 144
+fontsize = 16
+
+Residual = list(y_test) - y_pred_mean
+
+plt.figure(figsize=(12.5,3))
+plt.plot(np.arange(0, (w_plot)), y_test[-230: -86], label = 'Real values', linewidth = 2, color = 'steelblue')
+plt.plot(np.arange(0, (w_plot)), y_pred_mean[-230: -86], label = 'Predicted values', linewidth = 1.8, color= 'deepskyblue')
+plt.plot(np.arange(0, (w_plot)), Residual[-230: -86], label = 'Residual error', linewidth = 1, color = 'slategrey')
+plt.fill_between(np.arange(0, (w_plot)),  data['spike_lowerlim'][-230: -86],data['spike_upperlim'][-230: -86], facecolor='skyblue', alpha=0.5, label = 'Not spike regions')
+plt.xlim(0, w_plot - 1)
+plt.ylim(-160, 260)
+plt.minorticks_on()
+plt.grid(which='major', linestyle='-', linewidth='0.5')
+plt.grid(which='minor', linestyle=':', linewidth='0.5')
+#plt.xlabel('Accumulated SP', fontsize = fontsize)
+plt.ylabel('(£/MWh)', fontsize = fontsize)
+plt.xticks(fontsize = fontsize)
+plt.yticks(fontsize = fontsize)
+plt.title('Benchmark 1: Training Mean', fontsize = fontsize + 2)
+plt.tight_layout()
+plt.savefig('Plot_Benchmark_One.png')
+
+
+Residual = list(y_test) - y_naive1
+
+plt.figure(figsize=(12.5,3))
+plt.plot(np.arange(0, (w_plot)), y_test[-230: -86], label = 'Real values', linewidth = 2, color = 'steelblue')
+plt.plot(np.arange(0, (w_plot)), y_naive1[-230: -86], label = 'Predicted values', linewidth = 1.8, color= 'deepskyblue')
+plt.plot(np.arange(0, (w_plot)), Residual[-230: -86], label = 'Residual error', linewidth = 1, color = 'slategrey')
+plt.fill_between(np.arange(0, (w_plot)),  data['spike_lowerlim'][-230: -86],data['spike_upperlim'][-230: -86], facecolor='skyblue', alpha=0.5, label = 'Not spike regions')
+plt.xlim(0, w_plot - 1)
+plt.ylim(-160, 260)
+plt.xticks(fontsize = 20)
+plt.minorticks_on()
+plt.grid(which='major', linestyle='-', linewidth='0.5')
+plt.grid(which='minor', linestyle=':', linewidth='0.5')
+#plt.xlabel('Accumulated SP', fontsize = fontsize)
+plt.ylabel('(£/MWh)', fontsize = fontsize)
+plt.xticks(fontsize = fontsize)
+plt.yticks(fontsize = fontsize)
+plt.title('Benchmark 2: Previous SP', fontsize = fontsize + 2)
+plt.tight_layout()
+plt.savefig('Plot_Benchmark_Two.png')
+
+
+Residual = list(y_test) - y_naive2
+
+plt.figure(figsize=(12.5,3))
+plt.plot(np.arange(0, (w_plot)), y_test[-230: -86], label = 'Real values', linewidth = 2, color = 'steelblue')
+plt.plot(np.arange(0, (w_plot)), y_naive2[-230: -86], label = 'Predicted values', linewidth = 1.8, color= 'deepskyblue')
+plt.plot(np.arange(0, (w_plot)), Residual[-230: -86], label = 'Residual error', linewidth = 1, color = 'slategrey')
+plt.fill_between(np.arange(0, (w_plot)),  data['spike_lowerlim'][-230: -86],data['spike_upperlim'][-230: -86], facecolor='skyblue', alpha=0.5, label = 'Not spike regions')
+plt.xlim(0, w_plot - 1)
+plt.ylim(-160, 260)
+plt.minorticks_on()
+plt.grid(which='major', linestyle='-', linewidth='0.5')
+plt.grid(which='minor', linestyle=':', linewidth='0.5')
+#plt.xlabel('Accumulated SP', fontsize = fontsize)
+plt.ylabel('(£/MWh)', fontsize = fontsize)
+plt.xticks(fontsize = fontsize)
+plt.yticks(fontsize = fontsize)
+plt.title('Benchmark 3: Previous day SP', fontsize = fontsize + 2)
+plt.tight_layout()
+plt.savefig('Plot_Benchmark_Three.png')
+
+
+Residual = list(y_test) - y_naive3
+
+plt.figure(figsize=(12.5,3))
+plt.plot(np.arange(0, (w_plot)), y_test[-230: -86], label = 'Real values', linewidth = 2, color = 'steelblue')
+plt.plot(np.arange(0, (w_plot)), y_naive3[-230: -86], label = 'Predicted values', linewidth = 1.8, color= 'deepskyblue')
+plt.plot(np.arange(0, (w_plot)), Residual[-230: -86], label = 'Residual error', linewidth = 1, color = 'slategrey')
+plt.fill_between(np.arange(0, (w_plot)),  data['spike_lowerlim'][-230: -86], data['spike_upperlim'][-230: -86], facecolor='skyblue', alpha=0.5, label = 'Not spike regions')
+plt.xlim(0, w_plot -1 )
+plt.ylim(-160, 260)
+plt.minorticks_on()
+plt.grid(which='major', linestyle='-', linewidth='0.5')
+plt.grid(which='minor', linestyle=':', linewidth='0.5')
+#plt.xlabel('Accumulated SP', fontsize = fontsize)
+plt.ylabel('(£/MWh)', fontsize = fontsize)
+plt.xticks(fontsize = fontsize)
+plt.yticks(fontsize = fontsize)
+plt.title('Benchmark 4: Previous week SP', fontsize = fontsize + 2)
+plt.tight_layout()
+plt.savefig('Plot_Benchmark_Four.png')
