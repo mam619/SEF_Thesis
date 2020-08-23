@@ -51,11 +51,11 @@ nor_ann = data_ann.rmse_normal
 # Plotting
 # =============================================================================
 
-fontsize = 25
-line_width = 5
-color1 = 'cornflowerblue'
+fontsize = 35
+line_width = 7
+color1 = 'dodgerblue'
 color2 = 'darkorange'
-color3 = 'green'
+color3 = 'forestgreen'
 
 dates_labels = ['24 ', 
                 '22 ',
@@ -86,10 +86,10 @@ plt.minorticks_on()
 plt.grid(which='major', linestyle='-', linewidth='0.5')
 plt.grid(which='minor', linestyle=':', linewidth='0.5')
 plt.ylabel('RMSE (£/MWh)', fontsize = fontsize)
-plt.xlabel('Predictive window (in months)', fontsize = fontsize)
-plt.xticks(list(range(len(gen_lin))), dates_labels, fontsize = fontsize)
+#plt.xlabel('Predictive window (in months)', fontsize = fontsize)
+plt.xticks(list(range(len(gen_lin))), [] , fontsize = fontsize)
 plt.yticks(np.linspace(30, 70, 5),fontsize = fontsize)
-plt.title('Results on the whole test set for different prediction windows', fontsize = fontsize + 5)
+plt.title('RMSE results for all models using different prediction windows\n', fontsize = fontsize + 5)
 
 plt.subplot(3, 1, 2)
 plt.plot(list(range(12)), spi_lin, label = 'Linear Regression', linewidth = line_width, color = color2)
@@ -103,10 +103,10 @@ plt.minorticks_on()
 plt.grid(which='major', linestyle='-', linewidth='0.5')
 plt.grid(which='minor', linestyle=':', linewidth='0.5')
 plt.ylabel('RMSE (£/MWh)', fontsize = fontsize)
-plt.xlabel('Predictive window (in months)', fontsize = fontsize)
-plt.xticks(list(range(len(gen_lin))), dates_labels, fontsize = fontsize)
+#plt.xlabel('Predictive window (in months)', fontsize = fontsize)
+plt.xticks(list(range(len(gen_lin))), [], fontsize = fontsize)
 plt.yticks(np.linspace(30, 130, 5), fontsize = fontsize)
-plt.title('Results on the Spike regions for different prediction windows', fontsize = fontsize + 5)
+#plt.title('Results on the Spike regions for different prediction windows', fontsize = fontsize + 5)
 
 plt.subplot(3, 1, 3)
 plt.plot(list(range(12)), nor_lin, label = 'Linear Regression', linewidth = line_width, color = color3)
@@ -123,7 +123,9 @@ plt.ylabel('RMSE (£/MWh)', fontsize = fontsize)
 plt.xlabel('Predictive window (in months)', fontsize = fontsize)
 plt.xticks(list(range(len(gen_lin))), dates_labels, fontsize = fontsize)
 plt.yticks(np.linspace(10, 70, 6), fontsize = fontsize)
-plt.title('Results on the Normal regions for different prediction windows', fontsize = fontsize + 5)
+#plt.title('Results on the Normal regions for different prediction windows', fontsize = fontsize + 5)
+#          fancybox=True, shadow=True, ncol=5, fontsize = fontsize)
+
 plt.tight_layout()
 plt.show()
 plt.savefig('Plot_Predictive_window_Results.png')
@@ -132,7 +134,7 @@ plt.savefig('Plot_Predictive_window_Results.png')
 # =============================================================================
 # Make legend
 # =============================================================================
-color3 = 'cornflowerblue'
+color3 = 'black'
 plt.figure(figsize = (15,10))
 plt.plot(list(range(12)), nor_lin, label = 'Linear Regression', linewidth = line_width, color = color3)
 plt.plot(list(range(12)), nor_pol, label = 'Polynomial Regression', linewidth = line_width, linestyle = 'dotted', color = color3)
@@ -153,7 +155,7 @@ plt.title('Feature Selection results for Normal regions', fontsize = fontsize + 
 plt.legend(loc='upper center', bbox_to_anchor=(0.5, -0.05),
           fancybox=True, shadow=True, ncol=5, fontsize = fontsize)
 plt.savefig('Legend_all.png')
-
+'''
 color3 = 'darkorange'
 plt.figure(figsize = (15,10))
 plt.plot(list(range(12)), nor_lin, label = 'Linear Regression', linewidth = line_width, color = color3)
@@ -197,3 +199,4 @@ plt.title('Feature Selection results for Normal regions', fontsize = fontsize + 
 plt.legend(loc='upper center', bbox_to_anchor=(0.5, -0.05),
           fancybox=True, shadow=True, ncol=5, fontsize = fontsize)
 plt.savefig('Legend_normal.png')
+'''
