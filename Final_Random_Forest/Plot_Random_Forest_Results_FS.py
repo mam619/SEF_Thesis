@@ -24,10 +24,10 @@ fontsize = 18
 
 
 # RESULTS ON ALL TEST SET
-plt.figure(figsize = (14,8))
+plt.figure(figsize = (14,6))
 
 plt.subplot(3, 1, 1)
-plt.plot(np.arange(1, (14)), rmse_gen, label = 'RMSE on the total test set', linewidth = 1.2)
+plt.plot(np.arange(1, (14)), rmse_gen, label = 'RMSE on the total test set', linewidth = 2)
 plt.xlim(0.5, 13.5)
 plt.minorticks_on()
 plt.grid(which='major', linestyle='-', linewidth='0.5')
@@ -38,12 +38,12 @@ plt.xticks([1,2,3,4,5,6,7,8,9,10,11,12,13], [], fontsize = fontsize)
 plt.ylim(30, 50)
 plt.xlim(1,13)
 plt.yticks(fontsize = fontsize)
-plt.title('Feature Selection results on all regions', fontsize = fontsize + 3)
+plt.title('Random Forest: RMSE results for different features set', fontsize = fontsize + 3)
 plt.legend(loc = 'upper right', fontsize = fontsize)
 
 
 plt.subplot(3, 1, 2)
-plt.plot(np.arange(1, (14)), rmse_spi, label = 'RMSE on the spike regions', linewidth = 1.2, color = 'darkorange')
+plt.plot(np.arange(1, (14)), rmse_spi, label = 'RMSE on the spike regions', linewidth = 2, color = 'darkorange')
 plt.xlim(0.5, 13.5)
 plt.minorticks_on()
 plt.grid(which='major', linestyle='-', linewidth='0.5')
@@ -59,7 +59,7 @@ plt.legend(loc = 'upper right', fontsize = fontsize)
 
 
 plt.subplot(3, 1, 3)
-plt.plot(np.arange(1, (14)), rmse_nor, label = 'RMSE on the normal regions', linewidth = 1.2, color = 'green')
+plt.plot(np.arange(1, (14)), rmse_nor, label = 'RMSE on the non - spike regions', linewidth = 2, color = 'green')
 plt.xlim(0.5, 13.5)
 plt.minorticks_on()
 plt.grid(which='major', linestyle='-', linewidth='0.5')
@@ -71,6 +71,6 @@ plt.yticks(fontsize = fontsize)
 plt.ylim(20, 45)
 plt.xlim(1,13)
 #plt.title('Feature Selection results for Normal Regions', fontsize = fontsize + 2)
-plt.legend(loc = 'lower right', fontsize = fontsize)
+plt.legend(loc = 'upper right', fontsize = fontsize)
 plt.tight_layout()
 plt.savefig('Plot_Random_Forest_FS_Results.png')

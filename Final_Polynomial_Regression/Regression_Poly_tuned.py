@@ -166,17 +166,17 @@ results.to_csv('Results_Polynomial_Regression.csv')
 # =============================================================================
 
 w_plot = 144 # 3 days
-fontsize = 13
+fontsize = 16
 
 y_pred = y_pred.reshape(len(y_pred))
 
 Residual = list(y_test) - y_pred
 
-plt.figure(figsize=(11,4))
-plt.plot(np.arange(0, (w_plot)), y_test[-w_plot:], label = 'Real values', linewidth = 1.5, color = 'steelblue')
-plt.plot(np.arange(0, (w_plot)), y_pred[-w_plot:], label = 'Predicted values', linewidth = 1.2, color= 'deepskyblue')
-plt.plot(np.arange(0, (w_plot)), Residual[-w_plot:], label = 'Residual error', linewidth = 0.8, color = 'slategrey')
-plt.fill_between(np.arange(0, (w_plot)),  data['spike_lowerlim'][-w_plot:],data['spike_upperlim'][-w_plot:], facecolor='skyblue', alpha=0.5, label = 'Not spike regions')
+plt.figure(figsize=(12.5,4))
+plt.plot(np.arange(0, (w_plot)), y_test[-244:-100], label = 'Real values', linewidth = 2, color = 'steelblue')
+plt.plot(np.arange(0, (w_plot)), y_pred[-244:-100], label = 'Predicted values', linewidth = 1.8, color= 'deepskyblue')
+plt.plot(np.arange(0, (w_plot)), Residual[-244:-100], label = 'Residual error', linewidth = 1, color = 'slategrey')
+plt.fill_between(np.arange(0, (w_plot)),  data['spike_lowerlim'][-244:-100],data['spike_upperlim'][-244:-100], facecolor='skyblue', alpha=0.5, label = 'Spike delimitator')
 plt.xlim(0, w_plot - 1)
 plt.ylim(-100, 260)
 plt.minorticks_on()

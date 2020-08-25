@@ -483,7 +483,7 @@ plt.savefig('Plot_Benchmark_Three.png')
 
 Residual = list(y_test) - y_naive3
 
-plt.figure(figsize=(12.5,3))
+plt.figure(figsize=(12.5,2.5))
 plt.plot(np.arange(0, (w_plot)), y_test[-230: -86], label = 'Real values', linewidth = 2, color = 'steelblue')
 plt.plot(np.arange(0, (w_plot)), y_naive3[-230: -86], label = 'Predicted values', linewidth = 1.8, color= 'deepskyblue')
 plt.plot(np.arange(0, (w_plot)), Residual[-230: -86], label = 'Residual error', linewidth = 1, color = 'slategrey')
