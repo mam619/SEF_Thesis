@@ -1,7 +1,0 @@
-,all_param,rmse_general,mae_general,rmse_spike,mae_spike,rmse_normal,mae_normal
-0,"{'bias_initializer': <keras.initializers.Zeros object at 0x7fab565f6e50>, 'kernel_initializer': 'glorot_uniform'}",32.20374540743569,20.668285224835078,72.32196425884267,56.49273166100956,19.687037247379386,15.119536378329858
-1,"{'bias_initializer': <keras.initializers.Zeros object at 0x7fab565f6e50>, 'kernel_initializer': 'he_normal'}",31.601369334063463,18.372158036629358,75.82488663390548,58.992807925326154,16.21152296146407,12.080538580184593
-2,"{'bias_initializer': <keras.initializers.Zeros object at 0x7fab565f6e50>, 'kernel_initializer': 'he_uniform'}",30.521818157550303,17.630540372927985,74.6879861632801,60.10884771254456,14.555576100906974,11.051193521829477
-3,"{'bias_initializer': <keras.initializers.Ones object at 0x7fab565f6f10>, 'kernel_initializer': 'glorot_uniform'}",31.30048587312332,17.441122523943587,77.49957359974786,60.942362990888576,14.1839863569379,10.703336406506992
-4,"{'bias_initializer': <keras.initializers.Ones object at 0x7fab565f6f10>, 'kernel_initializer': 'he_normal'}",30.79157938082256,17.13758624394735,75.9597404283789,59.09903090393659,14.18774977126456,10.638294815407662
-5,"{'bias_initializer': <keras.initializers.Ones object at 0x7fab565f6f10>, 'kernel_initializer': 'he_uniform'}",33.939001155082934,19.4636541167895,82.7619996164504,64.85481007400068,16.41206919504926,12.43314424672521
