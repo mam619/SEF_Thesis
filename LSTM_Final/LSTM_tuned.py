@@ -22,12 +22,10 @@ n_hidden = 2
 units = 100
 batch_size = 96
 epochs = 200
+features_num = 14
 
 # months to evaluate model on
-date = 2018050000
-
-# for later use
-features_num = 3
+date = 2018090000
 
 # import data
 data = pd.read_csv('Data_set_1_smaller_(1).csv', index_col = 0)
@@ -38,9 +36,6 @@ data = data.loc[data.index > date, :]
 # reset index
 data.reset_index(inplace = True)
 data.drop('index', axis = 1, inplace = True)
-
-# choose features from FS
-data = data.loc[:, ['PrevDay',	'APXP',	'LOLP', 'Offers']]
 
 # fill nan values in the whole data set
 data.fillna(data.mean(), inplace = True)
@@ -78,9 +73,9 @@ def cut_data(data, batch_size):
     
     
 # divide features and labels
-X_train = data_train[:, 0:3] 
+X_train = data_train[:, 0:14] 
 y_train = data_train[:, -1]
-X_test = data_test[:, 0:3]
+X_test = data_test[:, 0:14]
 y_test = data_test[:, -1] 
 
 # divide data into validation and normal test 
@@ -113,26 +108,23 @@ from keras import optimizers
 def regressor_tunning(kernel_initializer = 'he_uniform',
                       bias_initializer = initializers.Ones()):
     model = Sequential()
-    if n_hidden == 1:
+    if n_hidden == 0:
         model.add(LSTM(units = units,                    
-                       batch_input_shape = (batch_size, steps, features_num), 
-                       stateful = True,
+                       input_shape = (steps, features_num), 
                        kernel_initializer = kernel_initializer,
                        bias_initializer = bias_initializer))
         model.add(LeakyReLU(alpha = 0.2))
         model.add(Dropout(0.2))
     else:
         model.add(LSTM(units = units,                    
-                       batch_input_shape = (batch_size, steps, features_num), 
-                       stateful = True,
+                       input_shape = (steps, features_num), 
                        return_sequences = True,
                        kernel_initializer = kernel_initializer,
                        bias_initializer = bias_initializer))
         model.add(LeakyReLU(alpha = 0.2))
         model.add(Dropout(0.2))
         model.add(LSTM(units = units, 
-                       batch_input_shape = (batch_size, steps, features_num), 
-                       stateful = True,
+                       input_shape = (steps, features_num), 
                        kernel_initializer = kernel_initializer,
                        bias_initializer = bias_initializer))
         model.add(LeakyReLU(alpha = 0.2))
@@ -289,7 +281,7 @@ results = pd.DataFrame({'rmse_general': rmse_gen,
                     
                         'mae_normal': mae_nor})
 
-#results.to_csv('Results_LSTM.csv')
+results.to_csv('Results_LSTM.csv')
 print(results)
 
 # =============================================================================
@@ -303,13 +295,13 @@ y_pred = y_pred.reshape(len(y_pred))
 
 Residual = list(y_test) - y_pred
 
-plt.figure(figsize=(11,4))
-plt.plot(np.arange(0, (w_plot)), y_test[-w_plot:], label = 'Real values', linewidth = 1.5, color = 'steelblue')
-plt.plot(np.arange(0, (w_plot)), y_pred[-w_plot:], label = 'Predicted values', linewidth = 1.2, color= 'deepskyblue')
-plt.plot(np.arange(0, (w_plot)), Residual[-w_plot:], label = 'Residual error', linewidth = 0.8, color = 'slategrey')
-plt.fill_between(np.arange(0, (w_plot)),  data['spike_lowerlim'][-w_plot:],data['spike_upperlim'][-w_plot:], facecolor='skyblue', alpha=0.5, label = 'Not spike regions')
-plt.xlim(0, w_plot - 1)
+plt.figure(figsize=(12.5,4))
+plt.plot(np.arange(0, 144), y_test[-244:-100], label = 'Real values', linewidth = 2, color = 'steelblue')
+plt.plot(np.arange(0, 144), y_pred[-244:-100], label = 'Predicted values', linewidth = 1.8, color= 'deepskyblue')
+plt.plot(np.arange(0, 144), Residual[-244:-100], label = 'Residual error', linewidth = 1, color = 'slategrey')
+plt.fill_between(np.arange(0, 144),  data['spike_lowerlim'][-244:-100],data['spike_upperlim'][-244:-100], facecolor='skyblue', alpha=0.5, label = 'Spike delimitator')
 plt.ylim(-100, 260)
+plt.xlim(0, 144 - 1)
 plt.minorticks_on()
 plt.grid(which='major', linestyle='-', linewidth='0.5')
 plt.grid(which='minor', linestyle=':', linewidth='0.5')
@@ -317,10 +309,11 @@ plt.xlabel('Accumulated SP', fontsize = fontsize)
 plt.ylabel('RMSE (£/MWh)', fontsize = fontsize)
 plt.xticks(fontsize = fontsize)
 plt.yticks([-100, -50, 0, 50,100, 150, 200, 250],[-100, -50, 0, 50, 100, 150, 200, 250],  fontsize = fontsize)
-plt.title('LSTM predictions', fontsize = fontsize + 2)
-plt.legend(loc = 'lower right')
+plt.title('LSTM stateful predictions', fontsize = fontsize + 2)
+plt.legend(loc = 'lower right', fontsize = fontsize - 2)
 plt.tight_layout()
-#plt.savefig('Plot_LSTM_final.png')
+plt.savefig('Plot_LSTM_final.png')
 
 y_pred = pd.Series(y_pred)
-#y_pred.to_csv('Predictions_LSTM.csv')
+y_pred.to_csv('Prediction_LSTM.csv')
+
