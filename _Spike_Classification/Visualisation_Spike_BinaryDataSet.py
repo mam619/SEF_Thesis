@@ -187,7 +187,7 @@ plt.scatter(spike_var_17[spike_var_17['num_spikes'] == max_spike_17].window, max
 plt.text(spike_var_17[spike_var_17['num_spikes'] == max_spike_17].window + 0.5, max_spike_17 - 500, '({},{})'.format(spike_var_17[spike_var_17['num_spikes'] == max_spike_17].window.iloc[0], max_spike_17), fontsize = fontsize - 2)
 plt.scatter(spike_var_16[spike_var_16['num_spikes'] == max_spike_16].window, max_spike_16 , color = 'red')
 plt.text(spike_var_16[spike_var_16['num_spikes'] == max_spike_16].window , max_spike_16 + 100, '({},{})'.format(spike_var_16[spike_var_16['num_spikes'] == max_spike_16].window.iloc[0], max_spike_16), fontsize = fontsize - 2)
-plt.title('Number of spike occurences using different roling windows\n', fontsize= fontsize + 2)
+plt.title('Number of spike occurences using different roling windows\n', fontsize= fontsize + 4)
 plt.minorticks_on()
 plt.grid(which='major', linestyle='-', linewidth='0.5')
 plt.grid(which='minor', linestyle=':', linewidth='0.5')
@@ -203,8 +203,8 @@ plt.figure(figsize=(15,4.5))
 plt.plot(range_w, spike_var_18['num_spikes'], linewidth = 2, label = 'Spike occurence', color = 'cornflowerblue')
 plt.plot(range_w, spike_var_18['num_normal'], linewidth = 2, label = 'No spike occurence', linestyle = 'dashed', color = 'cornflowerblue')
 plt.ylabel('Number of SP', fontsize = fontsize)
-plt.xlabel('Window number (SP)', fontsize = fontsize)
-plt.title('Number of SP with spike occurences and no spike occurence for 2018 using different rolling windows\n', fontsize = fontsize + 2)
+plt.xlabel('Rolling window number (SP)', fontsize = fontsize)
+plt.title('Spike occurences and no spike occurence for 2018 using different rolling windows\n', fontsize = fontsize + 4)
 plt.xticks(np.arange(0, 62, 2), fontsize = fontsize)
 plt.yticks([0, 2500, 5000, 7500, 10000, 12500, 15000, 17500], fontsize = fontsize)
 plt.xlim(0, 60)
@@ -218,6 +218,9 @@ plt.legend(fontsize = fontsize)
 plt.tight_layout()
 plt.show()
 #plt.savefig('Spike_occur_2018.png')
+
+ans = (spike_var_18['num_spikes'][46]/(spike_var_18['num_normal'][46] + spike_var_18['num_spikes'][46])) * 100
+print("Percentage of spike SPs for 2018: {}%".format(int(ans)))
 
 # =============================================================================
 # THIRD: PLOT SPIKES PER MONTH
@@ -284,7 +287,7 @@ ax1.plot([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12], count_16, color = 'plum', labe
 ax1.set_xticks([1,2,3,4,5,6,7,8,9, 10, 11,12])
 ax1.set_xlim([1,12])
 ax1.legend(fontsize = fontsize)
-ax1.set_title('Number of spikes per month fand respective percentages\n', fontsize = fontsize + 3)
+ax1.set_title('Number of spikes per month and respective percentages\n', fontsize = fontsize + 4)
 
 ax2 = ax1.twinx()  # instantiate a second axes that shares the same x-axis
 ax2.set_ylabel('Percentage of SP (%)', fontsize = fontsize)
