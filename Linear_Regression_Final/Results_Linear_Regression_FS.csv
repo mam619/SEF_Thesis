@@ -25,3 +25,6 @@
 "(13, array(['Ren_R', 'APXP', 'Rene', 'TSDF', 'Im_Pr', 'In_gen', 'LOLP',
        'PrevDay', 'DA_margin', 'DA_price_france', 'dino_bin',
        'ratio_offers_vol', 'DA_imb_France'], dtype=object))",29.886090223591996,21.3965341528502,60.298330787326286,48.67609427437624,20.64785900033618,16.753204770462787
+"(14, array(['Ren_R', 'APXP', 'Rene', 'TSDF', 'Im_Pr', 'In_gen', 'LOLP',
+       'PrevDay', 'PrevWeek', 'DA_margin', 'DA_price_france', 'dino_bin',
+       'ratio_offers_vol', 'DA_imb_France'], dtype=object))",29.88660398781034,21.396355869917155,60.301237366975585,48.6748759738932,20.647284382731062,16.753203511793572
