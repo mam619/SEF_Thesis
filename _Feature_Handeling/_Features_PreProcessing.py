@@ -12,8 +12,8 @@ import matplotlib.pyplot as plt
 # =============================================================================
 # download and treat data
 # =============================================================================
-Features_final = pd.read_csv('Feature_Handeling/Features_full_set.csv', index_col = 0)
-offers = pd.read_csv('Feature_Handeling/UK__Offers.csv', index_col = 0)
+Features_final = pd.read_csv('Features_full_set.csv', index_col = 0)
+offers = pd.read_csv('UK__Offers.csv', index_col = 0)
 
 # limit offers to 3000
 offers = offers[offers < 3000]
@@ -117,6 +117,50 @@ plt.savefig('Distribution_plots.png')
 # scatter_matrix(data, figsize = (20, 15))
 
 # =============================================================================
+# PLOT CORRELATION ANALYSIS RESULTS
+# =============================================================================
+
+values = corr_matrix_2.iloc[-1,:-1]
+
+labels = ['Renewable Ratio',
+          'Market Price',
+          'Renewable Generation',
+          'Transmission Demand',
+          'Net Imbalance',
+          'Imbalance Price',
+          'Interconnectors',
+          'Loss of Load Probability',
+          'Previous Day SP',
+          'Previous Week SP',
+          'Grid Margin',
+          'Grid Imbalance',
+          'Wind Peak Time',
+          'Exchange Rate',
+          'France Market Price',
+          'Dinorwig Plant Presence',
+          'Ratio of Offers',
+          'Ratio of Bids',
+          'France Imbalance']
+
+fontsize = 12
+
+fig = plt.figure(figsize=(11.5, 5))
+plt.bar(np.arange(1, 20), abs((values)), 
+        edgecolor = 'black',
+        linewidth = 1.2)
+ax = plt.gca()
+ax.set_facecolor('lightsteelblue')
+plt.plot(np.arange(0.5, 20.5), np.ones(20) * 0.05, linewidth = 0.8, linestyle = 'dashed', color = 'black')
+plt.ylabel('Correlation with the output', fontsize = fontsize)
+plt.xticks(np.arange(1, 20), labels, rotation = 80, fontsize = fontsize )
+plt.yticks(fontsize = fontsize)
+plt.ylim(0,0.4)
+plt.xlim(0.5, 19.5)
+plt.tight_layout()
+plt.savefig('Correlation_analysis_w_output.png')
+
+
+# =============================================================================
 # Data set TOO BIG - filter out features with coeff lower than 0.05 w/ output
 # =============================================================================
 
@@ -132,4 +176,3 @@ data.drop('ratio_bids_vol', axis = 1, inplace = True)
 corr_matrix_3 = data.corr()
 
 data.to_csv('Data_set_1_smaller_(1).csv')
-
