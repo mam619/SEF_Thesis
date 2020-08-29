@@ -68,7 +68,7 @@ f_chosen_ = []
 # =============================================================================
 # Feature selection loop for different number of features to select
 # =============================================================================
-for i in range(1, len(X.columns)):
+for i in range(1, len(X.columns) + 1):
     
     # create feature selector
     selector = RFE(regressor, n_features_to_select = i, step = 1)
@@ -82,7 +82,7 @@ for i in range(1, len(X.columns)):
     f_chosen = f_chosen[f_chosen != '']
     f_chosen_.append(f_chosen)
 
-results_fs = pd.DataFrame({'n_features_to_select': (list(range(1, 14))),
+results_fs = pd.DataFrame({'n_features_to_select': (list(range(1, 15))),
                           
                            'features_chosen': f_chosen_})
 
