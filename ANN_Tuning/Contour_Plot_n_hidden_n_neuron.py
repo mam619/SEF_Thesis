@@ -42,7 +42,7 @@ plt.xlabel('N_hidden', fontsize = fontsize)
 plt.ylabel('N_neurons', fontsize = fontsize)
 plt.xticks(fontsize = fontsize)
 plt.yticks(fontsize = fontsize)
-plt.title('    Results for the whole test set\n', fontsize = fontsize + 4)
+plt.title('    Results for the whole test set\n', fontsize = fontsize + 2)
 
 
 plt.subplot(1, 3, 2)
@@ -54,7 +54,7 @@ plt.xlabel('N_hidden', fontsize = fontsize)
 plt.ylabel('N_neurons', fontsize = fontsize)
 plt.xticks(fontsize = fontsize)
 plt.yticks(fontsize = fontsize)
-plt.title('  Results for spike regions\n', fontsize = fontsize + 4)
+plt.title('  Results for spike regions\n', fontsize = fontsize + 2)
 
 
 plt.subplot(1, 3, 3)
@@ -67,7 +67,7 @@ plt.xlabel('N_hidden', fontsize = fontsize)
 plt.ylabel('N_neurons', fontsize = fontsize)
 plt.xticks(fontsize = fontsize)
 plt.yticks(fontsize = fontsize)
-plt.title('   Results for non-spike regions\n', fontsize = fontsize + 4)
+plt.title('   Results for non-spike regions\n', fontsize = fontsize + 2)
 
 plt.tight_layout()
 plt.show()

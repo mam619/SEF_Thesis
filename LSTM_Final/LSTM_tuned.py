@@ -17,11 +17,11 @@ rmse_nor = []
 rmse_spi = []
 
 # parameters
-steps = 336
+steps = 48
 n_hidden = 2
 units = 100
-batch_size = 96
-epochs = 200
+batch_size = 48
+epochs = 100
 features_num = 14
 
 # months to evaluate model on
@@ -62,15 +62,6 @@ def split_data(X, y, steps):
         y_.append(y[i]) 
     return np.array(X_), np.array(y_)
 
-# function to cut data set so it can be divisible by the batch_size
-def cut_data(data, batch_size):
-     # see if it is divisivel
-    condition = data.shape[0] % batch_size
-    if condition == 0:
-        return data
-    else:
-        return data[: -condition]
-    
     
 # divide features and labels
 X_train = data_train[:, 0:14] 
@@ -87,13 +78,6 @@ X_train, y_train = split_data(X_train, y_train, steps)
 X_test, y_test = split_data(X_test, y_test, steps)
 X_val, y_val = split_data(X_val, y_val, steps)
 
-# cut data
-X_train = cut_data(X_train, batch_size)
-y_train = cut_data(y_train, batch_size)
-X_test = cut_data(X_test, batch_size)
-y_test = cut_data(y_test, batch_size)
-X_val = cut_data(X_val, batch_size)
-y_val = cut_data(y_val, batch_size)
 
 # import libraries for LSTM design
 from keras.models import Sequential
@@ -209,19 +193,8 @@ def split_data(shade_test, steps):
         lower_lim.append(shade_test['spike_lowerlim'][i])
     return np.array(y_spike_occ), np.array(upper_lim), np.array(lower_lim)
 
-# function to cut data set so it can be divisible by the batch_size
-def cut_data(data, batch_size):
-     # see if it is divisivel
-    condition = data.shape[0] % batch_size
-    if condition == 0:
-        return data
-    else:
-        return data[: -condition]
 
 y_spike_occ, spike_upperlim, spike_lowerlim = split_data(shade_test, steps)
-y_spike_occ = cut_data(y_spike_occ, batch_size)
-spike_upperlim = cut_data(spike_upperlim, batch_size)
-spike_lowerlim = cut_data(spike_lowerlim, batch_size)
 
 # =============================================================================
 # METRICS EVALUATION (2) on spike regions
