@@ -8,6 +8,7 @@ import pandas as pd
 from pandas.plotting import scatter_matrix
 import numpy as np
 import matplotlib.pyplot as plt
+import seaborn as sn
 
 # =============================================================================
 # download and treat data
@@ -32,6 +33,13 @@ print('Missing values (%):\n {}'.format((data.isna().sum()/data.count())*100))
 # CORR MATRIX - 0
 # =============================================================================
 corr_matrix_0 = data.corr()
+
+# save matrix in png format
+fig, ax = plt.subplots(figsize=(18,12))
+sn.heatmap(corr_matrix_0, annot=True, linewidths=.5, ax=ax, annot_kws={"size":14}, cmap="Blues", fmt='.2f')
+ax.tick_params(axis = "both", labelsize = 14),
+fig.show()
+fig.savefig("First_Correlation_Matrix.png", bbox_inches='tight')
 
 # =============================================================================
 # MAKE DESIRED CHANGES
@@ -87,8 +95,15 @@ data['ratio_offers_vol'] = data['ratio_offers_vol'].shift(1)
 data['ratio_bids_vol'] = data['ratio_bids_vol'].shift(1)
 data['dino_bin'] = data['dino_bin'].shift(1)
 
-# quantify nan values again
-print('Missing values (%):\n {}'.format((data.isna().sum()/data.count())*100))
+# =============================================================================
+# Missing values
+# =============================================================================
+
+# calculate missing values
+missing_perc = (data.isna().sum()/data.count())*100
+
+print('Missing values (%):\n {}'.format(missing_perc))
+
 
 # =============================================================================
 # CORR MATRIX - 2
@@ -122,6 +137,8 @@ plt.savefig('Distribution_plots.png')
 
 values = corr_matrix_2.iloc[-1,:-1]
 
+fontsize = 15
+
 labels = ['Renewable Ratio',
           'Market Price',
           'Renewable Generation',
@@ -142,20 +159,20 @@ labels = ['Renewable Ratio',
           'Ratio of Bids',
           'France Imbalance']
 
-fontsize = 12
 
-fig = plt.figure(figsize=(11.5, 5))
+fig = plt.figure(figsize=(15, 7))
 plt.bar(np.arange(1, 20), abs((values)), 
         edgecolor = 'black',
         linewidth = 1.2)
 ax = plt.gca()
-ax.set_facecolor('lightsteelblue')
+ax.set_facecolor('aliceblue')
 plt.plot(np.arange(0.5, 20.5), np.ones(20) * 0.05, linewidth = 0.8, linestyle = 'dashed', color = 'black')
-plt.ylabel('Correlation with the output', fontsize = fontsize)
+plt.ylabel('Correlation value', fontsize = fontsize)
 plt.xticks(np.arange(1, 20), labels, rotation = 80, fontsize = fontsize )
 plt.yticks(fontsize = fontsize)
 plt.ylim(0,0.4)
 plt.xlim(0.5, 19.5)
+plt.title('Correlation Analysis\n', fontsize = fontsize + 2)
 plt.tight_layout()
 plt.savefig('Correlation_analysis_w_output.png')
 
@@ -175,4 +192,17 @@ data.drop('ratio_bids_vol', axis = 1, inplace = True)
 # fourth correlation matrix 
 corr_matrix_3 = data.corr()
 
+# =============================================================================
+# Plot the last Correlation matrix
+# =============================================================================
+
+fig, ax = plt.subplots(figsize=(13,10))
+sn.heatmap(corr_matrix_3, annot=True, linewidths=.5, ax=ax, annot_kws={"size":14}, cmap="Blues", fmt='.2f')
+ax.tick_params(axis = "both", labelsize = 14),
+fig.show()
+fig.savefig("Final_Correlation_Matrix.png", bbox_inches='tight')
+
+# =============================================================================
+# Save data set
+# =============================================================================
 data.to_csv('Data_set_1_smaller_(1).csv')
