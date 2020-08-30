@@ -78,11 +78,11 @@ def regressor_tunning(n_hidden = 4,
     model = Sequential()
     model.add(Dense(units = n_neurons, input_dim = 14))
     model.add(keras.layers.LeakyReLU(alpha = 0.2))
-    model.add(Dropout(rate = 0.2))
+    model.add(Dropout(rate = 0.1))
     for layer in range(n_hidden):
         model.add(Dense(units = n_neurons))
         model.add(keras.layers.LeakyReLU(alpha = 0.2))
-        model.add(Dropout(rate = 0.2))
+        model.add(Dropout(rate = 0.1))
     model.add(Dense(units = 1, activation = 'linear'))
     optimizer = optimizers.Adamax(lr = 0.001)
     model.compile(loss = 'mse', optimizer = optimizer, metrics = ['mse', 'mae'])
@@ -92,7 +92,7 @@ def regressor_tunning(n_hidden = 4,
 # parameters for the ANN
 # =============================================================================
 splits = 8
-epochs = 180
+epochs = 200
 
 # =============================================================================
 # prepare CV splits, count and data frame to append results during training
@@ -322,6 +322,8 @@ plt.title('ANN predictions', fontsize = fontsize + 2)
 plt.legend(loc = 'lower right', fontsize = fontsize - 2)
 plt.tight_layout()
 plt.savefig('Plot_ANN_final_different_window.png')
+
+print('Results:{}'.format(results))
 
 y_pred = pd.Series(y_pred)
 y_pred.to_csv('Prediction_ANN.csv')
