@@ -48,7 +48,7 @@ data_train, data_test = train_test_split(
 
 from sklearn.preprocessing import MinMaxScaler
 
-# data scaling  (including offer (y))
+# data scaling
 sc_X = MinMaxScaler()
 data_train = sc_X.fit_transform(data_train)
 data_test = sc_X.transform(data_test)
@@ -62,6 +62,55 @@ def split_data(X, y, steps):
         y_.append(y[i]) 
     return np.array(X_), np.array(y_)
 
+# function to cut data set so it can be divisible by the batch_size
+def cut_data(data, batch_size):
+     # see if it is divisivel
+    condition = data.shape[0] % batch_size
+    if condition == 0:
+        return data
+    else:
+        return data[: -condition]
+
+# prepare data with spike occurences the same way as features and offers
+
+# download data for shaded area
+data = pd.read_csv('Spike_binary_1std.csv', index_col = 0)
+
+# set predictive window according with tuning best results
+data = data.loc[data.index > date, :]
+
+# make sure shaded area will correspond to values outputed by LSTM
+data.reset_index(drop = True, inplace = True)
+
+# fill_nan is already made - so lets split data into test and train
+from sklearn.model_selection import train_test_split
+
+# divide data into train and test 
+shade_train, shade_test = train_test_split(
+         data, test_size = 0.15, shuffle = False)
+
+# reset index of testing data
+shade_test.reset_index(drop = True, inplace = True)
+
+# function to split data into correct shape for RNN
+def split_data_shade(shade_test, steps):
+    y_spike_occ = list()
+    upper_lim = list()
+    lower_lim = list()
+    for i in range(steps, len(shade_test.index)):
+        y_spike_occ.append(shade_test['spike_occurance'][i])
+        upper_lim.append(shade_test['spike_upperlim'][i])
+        lower_lim.append(shade_test['spike_lowerlim'][i])
+    return np.array(y_spike_occ), np.array(upper_lim), np.array(lower_lim)
+
+# function to cut data set so it can be divisible by the batch_size
+def cut_data_shade(data, batch_size):
+     # see if it is divisivel
+    condition = data.shape[0] % batch_size
+    if condition == 0:
+        return data
+    else:
+        return data[: -condition]
     
 # divide features and labels
 X_train = data_train[:, 0:14] 
@@ -78,8 +127,16 @@ X_train, y_train = split_data(X_train, y_train, steps)
 X_test, y_test = split_data(X_test, y_test, steps)
 X_val, y_val = split_data(X_val, y_val, steps)
 
+# =============================================================================
+# X_train = cut_data(X_train, batch_size)
+# y_train = cut_data(y_train, batch_size)
+# X_test = cut_data(X_test, batch_size)
+# y_test = cut_data(y_test, batch_size)
+# X_val = cut_data(X_val, batch_size)
+# y_val = cut_data(y_val, batch_size)
+# =============================================================================
 
-# import libraries for LSTM design
+
 from keras.models import Sequential
 from keras.layers import Dense
 from keras.layers import LSTM
@@ -87,8 +144,8 @@ from keras.layers import Dropout
 from keras.layers import LeakyReLU
 from keras import initializers
 from keras import optimizers
+from keras.callbacks import EarlyStopping
 
-# function defining regressor
 def regressor_tunning(kernel_initializer = 'he_uniform',
                       bias_initializer = initializers.Ones()):
     model = Sequential()
@@ -121,14 +178,15 @@ def regressor_tunning(kernel_initializer = 'he_uniform',
 # create regressor
 model = regressor_tunning()
 
-history = model.fit(X_train,
-                    y_train, 
-                    batch_size = batch_size, 
-                    epochs = epochs,
-                    shuffle = False, 
-                    validation_data = (X_val, y_val))
-    
-# required before predicitons
+# fitting the LSTM to the training set
+model.fit(X_train,
+          y_train, 
+          batch_size = batch_size, 
+         epochs = 100,
+         shuffle = False, 
+         validation_data = (X_val, y_val))
+
+# reset states to have suitable predictions
 model.reset_states()
 
 # make predictions with new data from X_test   
@@ -163,37 +221,10 @@ mae_gen.append(mae_error)
 # (Need to process data with spike occurences in the same way)
 # =============================================================================
 
-# download data for shaded area
-data = pd.read_csv('Spike_binary_1std.csv', index_col = 0)
-
-# set predictive window according with tuning best results
-data = data.loc[data.index > date, :]
-
-# make sure shaded area will correspond to values outputed by LSTM
-data.reset_index(drop = True, inplace = True)
-
-# fill_nan is already made - so lets split data into test and train
-from sklearn.model_selection import train_test_split
-
-# divide data into train and test 
-shade_train, shade_test = train_test_split(
-         data, test_size = 0.15, shuffle = False)
-
-# reset index of testing data
-shade_test.reset_index(drop = True, inplace = True)
-
-# function to split data into correct shape for RNN
-def split_data(shade_test, steps):
-    y_spike_occ = list()
-    upper_lim = list()
-    lower_lim = list()
-    for i in range(steps, len(shade_test.index)):
-        y_spike_occ.append(shade_test['spike_occurance'][i])
-        upper_lim.append(shade_test['spike_upperlim'][i])
-        lower_lim.append(shade_test['spike_lowerlim'][i])
-    return np.array(y_spike_occ), np.array(upper_lim), np.array(lower_lim)
-
-y_spike_occ, spike_upperlim, spike_lowerlim = split_data(shade_test, steps)
+# shape y_spike_occ for the right size to compare results in normal and spike regions
+y_spike_occ, spike_upperlim, spike_lowerlim = split_data_shade(shade_test, steps)
+y_spike_occ = cut_data_shade(y_spike_occ, batch_size)
+        
 
 # =============================================================================
 # METRICS EVALUATION (2) on spike regions
@@ -268,10 +299,10 @@ y_pred = y_pred.reshape(len(y_pred))
 Residual = list(y_test) - y_pred
 
 plt.figure(figsize=(12.5,4))
-plt.plot(np.arange(0, 144), y_test[-180:-36], label = 'Real values', linewidth = 2, color = 'steelblue')
-plt.plot(np.arange(0, 144), y_pred[-180:-36], label = 'Predicted values', linewidth = 1.8, color= 'deepskyblue')
-plt.plot(np.arange(0, 144), Residual[-180:-36], label = 'Residual error', linewidth = 1, color = 'slategrey')
-plt.fill_between(np.arange(0, 144),  data['spike_lowerlim'][-180:-36], data['spike_upperlim'][-180:-36], facecolor='skyblue', alpha=0.5, label = 'Spike delimitator')
+plt.plot(np.arange(0, 144), y_test[-226:-82], label = 'Real values', linewidth = 2, color = 'steelblue')
+plt.plot(np.arange(0, 144), y_pred[-226:-82], label = 'Predicted values', linewidth = 1.8, color= 'deepskyblue')
+plt.plot(np.arange(0, 144), Residual[-226:-82], label = 'Residual error', linewidth = 1, color = 'slategrey')
+plt.fill_between(np.arange(0, 144),  data['spike_lowerlim'][-226:-82], data['spike_upperlim'][-226:-82], facecolor='skyblue', alpha=0.5, label = 'Spike delimitator')
 plt.ylim(-100, 260)
 plt.xlim(0, 144 - 1)
 plt.minorticks_on()
@@ -281,7 +312,7 @@ plt.xlabel('Accumulated SP', fontsize = fontsize)
 plt.ylabel('RMSE (£/MWh)', fontsize = fontsize)
 plt.xticks(fontsize = fontsize)
 plt.yticks([-100, -50, 0, 50,100, 150, 200, 250],[-100, -50, 0, 50, 100, 150, 200, 250],  fontsize = fontsize)
-plt.title('LSTM stateful predictions', fontsize = fontsize + 2)
+plt.title('LSTM predictions', fontsize = fontsize + 2)
 plt.legend(loc = 'lower right', fontsize = fontsize - 2)
 plt.tight_layout()
 plt.savefig('Plot_LSTM_final.png')

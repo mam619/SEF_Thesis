@@ -84,7 +84,7 @@ def regressor_tunning(n_hidden = 4,
         model.add(keras.layers.LeakyReLU(alpha = 0.2))
         model.add(Dropout(rate = 0.1))
     model.add(Dense(units = 1, activation = 'linear'))
-    optimizer = optimizers.Adamax(lr = 0.001)
+    optimizer = optimizers.RMSprop() 
     model.compile(loss = 'mse', optimizer = optimizer, metrics = ['mse', 'mae'])
     return model
 
