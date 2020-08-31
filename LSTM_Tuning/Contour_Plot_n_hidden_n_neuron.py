@@ -65,7 +65,7 @@ cd.set_label(label = 'RMSE (£/MWh)', size = fontsize)
 cd.ax.tick_params(labelsize = fontsize)
 plt.xticks([1,2], [1,2], fontsize = fontsize)
 plt.ylabel('N_neurons', fontsize = fontsize)
-plt.xticks(fontsize = fontsize)
+plt.xlabel('N_hidden', fontsize = fontsize)
 plt.yticks([50, 100, 150, 200], [50, 100, 150, 200], fontsize = fontsize)
 plt.title('   Results for non-spike regions\n', fontsize = fontsize + 2)
 

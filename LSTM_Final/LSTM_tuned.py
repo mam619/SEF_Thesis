@@ -193,7 +193,6 @@ def split_data(shade_test, steps):
         lower_lim.append(shade_test['spike_lowerlim'][i])
     return np.array(y_spike_occ), np.array(upper_lim), np.array(lower_lim)
 
-
 y_spike_occ, spike_upperlim, spike_lowerlim = split_data(shade_test, steps)
 
 # =============================================================================
