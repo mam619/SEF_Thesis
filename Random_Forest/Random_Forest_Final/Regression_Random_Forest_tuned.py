@@ -191,5 +191,6 @@ plt.savefig('Plot_Random_Forest_final.png')
 y_pred = pd.Series(y_pred)
 y_pred.to_csv('Prediction_Random_Forest.csv')
 
+print('Mean of offer price value for the 3 day window seen in plots:{}'.format(y_test[-244:-100].mean()))
 
 

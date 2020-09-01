@@ -166,7 +166,7 @@ results.to_csv('Results_SVM.csv')
 # =============================================================================
 
 w_plot = 144 # 3 days
-fontsize = 13
+fontsize = 16
 
 y_pred = y_pred.reshape(len(y_pred))
 
