@@ -1,0 +1,10 @@
+# for data fetching
+httplib2
+re
+pandas
+numba
+entsoe-py==0.1.9
+
+# for data manipulation
+seaborn
+matplotlib
