@@ -8,6 +8,8 @@ import json
 from sklearn.model_selection import TimeSeriesSplit
 from sklearn.preprocessing import PolynomialFeatures
 from sklearn.linear_model import LinearRegression
+from sklearn.preprocessing import RobustScaler
+from sklearn.pipeline import Pipeline
 
 import utils
 
@@ -27,14 +29,14 @@ if __name__ == "__main__":
     poly_reg = PolynomialFeatures(degree=2)
     X = pd.DataFrame(poly_reg.fit_transform(X))
 
-    # create regressor and fit training data
-    regressor = LinearRegression()
+    # create pipeline with regressor and scaler
+    pipeline = Pipeline([("scaler", RobustScaler()), ("regressor", LinearRegression())])
 
     # nested cross validation
     tscv = TimeSeriesSplit(n_splits=6, max_train_size=365 * 48, test_size=48 * 30)
 
     # perform nested cross validation and get results
-    y_test, y_pred = utils.my_cross_val_predict(regressor, X, y, tscv)
+    y_test, y_pred = utils.my_cross_val_predict(pipeline, X, y, tscv)
 
     # calculate results
     results = utils.get_results(y_test, y_pred)

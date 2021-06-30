@@ -6,7 +6,7 @@ from sklearn.metrics import mean_squared_error as mse
 from sklearn.metrics import mean_absolute_error as mae
 
 
-def my_cross_val_predict(regressor, X, y, tscv):
+def my_cross_val_predict(regressor, X, y, tscv, lstm=None, lstm_params=None):
 
     y_test_complete = None
     y_pred_complete = None
@@ -15,23 +15,107 @@ def my_cross_val_predict(regressor, X, y, tscv):
         X_train, X_test = X.iloc[train_index], X.iloc[test_index]
         y_train, y_test = y.iloc[train_index], y.iloc[test_index]
 
-    # confirm shapes
-    assert X_train.shape[0] == y_train.shape[0]
-    assert X_test.shape[0] == y_test.shape[0]
+        # confirm shapes
+        assert X_train.shape[0] == y_train.shape[0]
+        assert X_test.shape[0] == y_test.shape[0]
 
-    # fit and predict
-    regressor.fit(X_train, y_train)
-    y_pred = regressor.predict(X_test)
+        if lstm is not None:
+            # split data into correct shape for RNN
+            xtrain, ytrain = list(), list()
+            xtest = list()
+            for i in range(lstm_params["steps"], len(y_train)):
+                xtrain.append(X_train[i - lstm_params["steps"] : i])
+                ytrain.append(y_train[i])
+            for i in range(lstm_params["steps"], len(y_test)):
+                xtest.append(X_test[i - lstm_params["steps"] : i])
 
-    # combine and save all y_test and y_pred splits
-    if y_test_complete is None:
-        y_test_complete = y_test
-        y_pred_complete = y_pred
-    else:
-        y_test_complete = pd.concat([y_test_complete, y_test], axis=0)
-        y_pred_complete = np.append(y_pred_complete, y_pred)
+            X_train, y_train, X_test = np.array(xtrain), np.array(ytrain), np.array(xtest)
+
+        # fit and predict
+        regressor.fit(X_train, y_train)
+        y_pred = regressor.predict(X_test)
+
+        # combine and save all y_test and y_pred splits
+        if y_test_complete is None:
+            y_test_complete = y_test
+            y_pred_complete = y_pred
+        else:
+            y_test_complete = pd.concat([y_test_complete, y_test], axis=0)
+            y_pred_complete = np.append(y_pred_complete, y_pred)
 
     return y_test_complete, y_pred_complete
+
+
+def my_cross_val_predict_for_lstm(lstm_regressor, scaler, data, tscv, lstm_params, callbacks):
+
+    y_test_complete = None
+    y_pred_complete = None
+
+    for train_index, test_index in tscv.split(data):
+
+        # divide train and test data
+        data_train, data_test = data.iloc[train_index], data.iloc[test_index]
+
+        # scale train and test data separatly
+        data_train = scaler.fit_transform(data_train)
+        data_test = scaler.transform(data_test)
+
+        # Divide features and labels
+        X_train, y_train = data_train[:, :-1], data_train[:, -1]
+        X_test, y_test = data_test[:, :-1], data_test[:, -1]
+
+        # confirm shapes
+        assert X_train.shape[0] == y_train.shape[0]
+        assert X_test.shape[0] == y_test.shape[0]
+
+        # split data into correct shape for RNN
+        xtrain, ytrain = list(), list()
+        xtest, ytest = list(), list()
+
+        for i in range(lstm_params["steps"], len(y_train)):
+            xtrain.append(X_train[i - lstm_params["steps"] : i])
+            ytrain.append(y_train[i])
+        for i in range(lstm_params["steps"], len(y_test)):
+            xtest.append(X_test[i - lstm_params["steps"] : i])
+            ytest.append(y_test[i])
+
+        # convert data set into array
+        X_train, y_train, X_test, y_test = (
+            np.array(xtrain),
+            np.array(ytrain),
+            np.array(xtest),
+            np.array(ytest),
+        )
+
+        # fit and predict
+        lstm_regressor.fit(
+            X_train,
+            y_train,
+            epochs=lstm_params["epochs"],
+            batch_size=lstm_params["batch_size"],
+            validation_split=lstm_params["validation_split"],
+            callbacks=callbacks,
+            shuffle=False,
+            verbose=2,
+        )
+        lstm_regressor.reset_states()
+        y_pred = lstm_regressor.predict(X_test)
+
+        # combine and save all y_test and y_pred splits
+        if y_test_complete is None:
+            y_test_complete = y_test
+            y_pred_complete = y_pred
+        else:
+            y_test_complete = np.append(y_test_complete, y_test)
+            y_pred_complete = np.append(y_pred_complete, y_pred)
+
+    # cannot use inverse function; prices col = 14
+    y_pred_complete = (y_pred_complete * scaler.data_range_[-1]) + (scaler.data_min_[-1])
+    y_test_complete = (y_test_complete * scaler.data_range_[-1]) + (scaler.data_min_[-1])
+
+    return pd.Series(y_test_complete, index=data.index[-len(y_test_complete) :]), pd.Series(
+        y_pred_complete, index=data.index[-len(y_test_complete) :]
+    )
 
 
 def select_region(binary_occurences, y_test, y_pred):
@@ -176,7 +260,7 @@ def plot_scatter(y_test, y_pred, filename, fontsize=13, fig_size=(10, 10), path=
     )
     ax1.plot(y_test, y_test, ls="--", color="grey", label="1-1 line")
     ax1.set_xlabel("Actual", fontsize=fontsize)
-    ax1.set_ylabel("Outturn", fontsize=fontsize)
+    ax1.set_ylabel("Predicted", fontsize=fontsize)
     ax1.legend(loc="upper right", fontsize=fontsize)
     ax1.set_xlim((40, 370))
     ax1.set_ylim((40, 370))
