@@ -18,6 +18,9 @@ from tensorflow.keras import initializers, optimizers
 import hyperopt
 from hyperopt import fmin, tpe, hp, STATUS_OK, Trials
 
+import sys
+
+sys.path.append("../")
 import utils
 
 
@@ -88,7 +91,9 @@ def ann_tuning_objective(params):
 if __name__ == "__main__":
 
     # import data
-    data = pd.read_csv("data/processed_data/data_final.csv", index_col=0, parse_dates=True)
+    data = pd.read_csv(
+        "/SEF_Thesis/data/processed_data/data_final.csv", index_col=0, parse_dates=True
+    )
 
     # set prediction window according to the date range required
     data = data.loc[
