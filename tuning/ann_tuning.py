@@ -15,10 +15,12 @@ from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Dense, Dropout
 from tensorflow.keras import initializers, optimizers
 
-
 import hyperopt
 from hyperopt import fmin, tpe, hp, STATUS_OK, Trials
 
+import sys
+
+sys.path.append("../")
 import utils
 
 
