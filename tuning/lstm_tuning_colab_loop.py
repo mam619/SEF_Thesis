@@ -120,8 +120,8 @@ if __name__ == "__main__":
 
     def run_trials():
 
-        trials_step = 20  # how many additional trials to do after loading saved trials. 1 = save after iteration
-        max_trials = 50  # initial max_trials. put something small to not have to wait
+        trials_step = 10  # how many additional trials to do after loading saved trials. 1 = save after iteration
+        max_trials = 20  # initial max_trials. put something small to not have to wait
 
         try:  # try to load an already saved trials object, and increase the max
             trials = pickle.load(open("results/lstm_trials_colab_loop.p", "rb"))
