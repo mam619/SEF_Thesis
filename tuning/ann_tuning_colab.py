@@ -121,8 +121,8 @@ if __name__ == "__main__":
     ann_hyperparameters = hyperopt.space_eval(space, best_ann)
 
     # save trials
-    pickle.dump(trials, open("results/ann_trials.p", "wb"))
+    pickle.dump(trials, open("results/ann_trials_colab.p", "wb"))
 
     # save best results
-    with open("results/ann_hyperparameters.json", "w") as f:
+    with open("results/ann_hyperparameters_colab.json", "w") as f:
         json.dump(ann_hyperparameters, f)
