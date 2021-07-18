@@ -112,7 +112,7 @@ if __name__ == "__main__":
     trials = Trials()
 
     best_ann = fmin(
-        fn=ann_tuning_objective, space=space, algo=tpe.suggest, max_evals=1, trials=trials
+        fn=ann_tuning_objective, space=space, algo=tpe.suggest, max_evals=100, trials=trials
     )
 
     ann_hyperparameters = hyperopt.space_eval(space, best_ann)
