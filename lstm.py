@@ -13,7 +13,7 @@ from tensorflow.keras.layers import Dense, Dropout, LSTM, LeakyReLU
 from tensorflow.keras import initializers, optimizers
 
 import utils
-
+import constants_
 
 lstm_params = {
     "epochs": 500,
@@ -76,10 +76,11 @@ if __name__ == "__main__":
 
     # set prediction window according to the date range required
     data = data.loc[
-        (data.index >= datetime(2018, 3, 1, tzinfo=pytz.utc))
-        & (data.index < datetime(2019, 1, 1, tzinfo=pytz.utc)),
+        (data.index >= constants_.TEST_DATES["start"])
+        & (data.index < constants_.TEST_DATES["end"]),
         :,
     ]
+
     # add features number to lstm params
     lstm_params["features_num"] = data.shape[1] - 1
 
@@ -87,7 +88,7 @@ if __name__ == "__main__":
     scaler = RobustScaler()
 
     # nested cross validation
-    tscv = TimeSeriesSplit(n_splits=3, max_train_size=183 * 48, test_size=31 * 48)
+    tscv = TimeSeriesSplit(n_splits=3, max_train_size=183 * 48, test_size=15 * 48)
 
     # perform nested cross validation and get results
     y_test, y_pred = utils.my_cross_val_predict_for_lstm(
