@@ -14,12 +14,12 @@ from tensorflow.keras.wrappers.scikit_learn import KerasRegressor
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Dense, Dropout
 from tensorflow.keras import initializers, optimizers
-from tensorflow.keras.callbacks import EarlyStopping, ModelCheckpoint
+from tensorflow.keras.callbacks import EarlyStopping
 
 import utils
 
 
-ann_params = {"epochs": 500, "validation_split": 0.2, "batch_size": 50}
+ann_params = {"epochs": 500, "batch_size": 50}
 
 
 def get_ann(
@@ -84,7 +84,7 @@ if __name__ == "__main__":
     pipeline = Pipeline([("scaler", RobustScaler()), ("regressor", regressor)])
 
     # nested cross validation
-    tscv = TimeSeriesSplit(n_splits=6, max_train_size=365 * 48, test_size=48 * 30)
+    tscv = TimeSeriesSplit(n_splits=3, max_train_size=(183 * 48), test_size=31 * 48)
 
     # perform nested cross validation and get results
     y_test, y_pred = utils.my_cross_val_predict(pipeline, X, y, tscv)

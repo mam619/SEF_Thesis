@@ -11,23 +11,21 @@ from sklearn.preprocessing import RobustScaler
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Dense, Dropout, LSTM, LeakyReLU
 from tensorflow.keras import initializers, optimizers
-from tensorflow.keras.callbacks import EarlyStopping, ModelCheckpoint
 
 import utils
 
 
 lstm_params = {
     "epochs": 500,
-    "validation_split": 0.2,
     "batch_size": 50,
     "steps": 48,
-    "n_hidden": 2,
-    "units": 100,
-    "batch_size": 48,
+    "n_hidden": 1,
+    "units": 120,
 }
 
 
 def get_lstm(kernel_initializer="he_uniform", bias_initializer=initializers.Ones()):
+
     model = Sequential()
 
     if lstm_params["n_hidden"] == 1:
@@ -77,8 +75,11 @@ if __name__ == "__main__":
     data = pd.read_csv("data/processed_data/data_final.csv", index_col=0, parse_dates=True)
 
     # set prediction window according to the date range required
-    data = data.loc[data.index > datetime(2017, 6, 1, tzinfo=pytz.utc), :]
-
+    data = data.loc[
+        (data.index >= datetime(2018, 3, 1, tzinfo=pytz.utc))
+        & (data.index < datetime(2019, 1, 1, tzinfo=pytz.utc)),
+        :,
+    ]
     # add features number to lstm params
     lstm_params["features_num"] = data.shape[1] - 1
 
@@ -86,33 +87,27 @@ if __name__ == "__main__":
     scaler = RobustScaler()
 
     # nested cross validation
-    tscv = TimeSeriesSplit(n_splits=6, max_train_size=365 * 48, test_size=48 * 30)
-
-    # set callbacks
-    callbacks = [
-        EarlyStopping(patience=50),
-        ModelCheckpoint(filepath="model_checkpoint", save_weights_only=True, save_best_only=True),
-    ]
+    tscv = TimeSeriesSplit(n_splits=3, max_train_size=183 * 48, test_size=31 * 48)
 
     # perform nested cross validation and get results
     y_test, y_pred = utils.my_cross_val_predict_for_lstm(
-        get_lstm(), scaler, data, tscv, lstm_params, callbacks
+        get_lstm(), scaler, data, tscv, lstm_params
     )
 
     # calculate results
     results = utils.get_results(y_test, y_pred)
 
     # save results
-    with open("results/results_lstm_robust_scaler.json", "w") as f:
+    with open("results/results_lstm.json", "w") as f:
         json.dump(results, f)
 
     utils.plot_results(
         y_test,
         y_pred,
-        filename="lstm_robust_scaler",
+        filename="lstm",
         window_plot=200,
         fontsize=14,
         fig_size=(15, 5),
     )
 
-    utils.plot_scatter(y_test, y_pred, filename="lstm_robust_scaler")
+    utils.plot_scatter(y_test, y_pred, filename="lstm")

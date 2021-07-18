@@ -33,7 +33,7 @@ if __name__ == "__main__":
     pipeline = Pipeline([("scaler", RobustScaler()), ("regressor", LinearRegression())])
 
     # nested cross validation
-    tscv = TimeSeriesSplit(n_splits=6, max_train_size=365 * 48, test_size=48 * 30)
+    tscv = TimeSeriesSplit(n_splits=6, max_train_size=365 * 48, test_size=30 * 48)
 
     # perform nested cross validation and get results
     y_test, y_pred = utils.my_cross_val_predict(pipeline, X, y, tscv)

@@ -6,7 +6,7 @@ from sklearn.metrics import mean_squared_error as mse
 from sklearn.metrics import mean_absolute_error as mae
 
 
-def my_cross_val_predict(regressor, X, y, tscv, lstm=None, lstm_params=None):
+def my_cross_val_predict(pipeline_, X, y, tscv):
 
     y_test_complete = None
     y_pred_complete = None
@@ -19,21 +19,9 @@ def my_cross_val_predict(regressor, X, y, tscv, lstm=None, lstm_params=None):
         assert X_train.shape[0] == y_train.shape[0]
         assert X_test.shape[0] == y_test.shape[0]
 
-        if lstm is not None:
-            # split data into correct shape for RNN
-            xtrain, ytrain = list(), list()
-            xtest = list()
-            for i in range(lstm_params["steps"], len(y_train)):
-                xtrain.append(X_train[i - lstm_params["steps"] : i])
-                ytrain.append(y_train[i])
-            for i in range(lstm_params["steps"], len(y_test)):
-                xtest.append(X_test[i - lstm_params["steps"] : i])
-
-            X_train, y_train, X_test = np.array(xtrain), np.array(ytrain), np.array(xtest)
-
         # fit and predict
-        regressor.fit(X_train, y_train)
-        y_pred = regressor.predict(X_test)
+        pipeline_.fit(X_train, y_train)
+        y_pred = pipeline_.predict(X_test)
 
         # combine and save all y_test and y_pred splits
         if y_test_complete is None:
@@ -46,7 +34,7 @@ def my_cross_val_predict(regressor, X, y, tscv, lstm=None, lstm_params=None):
     return y_test_complete, y_pred_complete
 
 
-def my_cross_val_predict_for_lstm(lstm_regressor, scaler, data, tscv, lstm_params, callbacks):
+def my_cross_val_predict_for_lstm(lstm_regressor, scaler, data, tscv, lstm_params, callbacks=None):
 
     y_test_complete = None
     y_pred_complete = None
@@ -93,7 +81,7 @@ def my_cross_val_predict_for_lstm(lstm_regressor, scaler, data, tscv, lstm_param
             y_train,
             epochs=lstm_params["epochs"],
             batch_size=lstm_params["batch_size"],
-            validation_split=lstm_params["validation_split"],
+            validation_split=0.2,
             callbacks=callbacks,
             shuffle=False,
             verbose=2,
@@ -110,8 +98,8 @@ def my_cross_val_predict_for_lstm(lstm_regressor, scaler, data, tscv, lstm_param
             y_pred_complete = np.append(y_pred_complete, y_pred)
 
     # cannot use inverse function; prices col = 14
-    y_pred_complete = (y_pred_complete * scaler.data_range_[-1]) + (scaler.data_min_[-1])
-    y_test_complete = (y_test_complete * scaler.data_range_[-1]) + (scaler.data_min_[-1])
+    y_pred_complete = (y_pred_complete * scaler.scale_[-1]) + (scaler.center_[-1])
+    y_test_complete = (y_test_complete * scaler.scale_[-1]) + (scaler.center_[-1])
 
     return pd.Series(y_test_complete, index=data.index[-len(y_test_complete) :]), pd.Series(
         y_pred_complete, index=data.index[-len(y_test_complete) :]
@@ -243,51 +231,41 @@ def plot_results(
     plt.savefig(path + "predictions_" + filename + ".png")
 
 
-def plot_scatter(y_test, y_pred, filename, fontsize=13, fig_size=(10, 10), path="results/plots/"):
+def plot_scatter(y_test, y_pred, filename, fontsize=13, fig_size=(15, 5), path="results/plots/"):
 
     y_test_spike, y_pred_spike, y_test_normal, y_pred_normal = split_regions(y_test, y_pred)
 
     fig, (ax1, ax2, ax3) = plt.subplots(1, 3)
 
-    fig.set_figheight(6)
-    fig.set_figwidth(18)
+    line_points = [min(y_test), y_test[5], max(y_test)]
 
-    ax1.scatter(
-        y_test,
-        y_pred,
-        label="General region",
-        color="dimgray",
-    )
-    ax1.plot(y_test, y_test, ls="--", color="grey", label="1-1 line")
+    fig.set_figwidth(fig_size[0])
+    fig.set_figheight(fig_size[1])
+
+    ax1.scatter(y_test, y_pred, label="General region", color="dimgray", s=10)
+    ax1.plot(line_points, line_points, ls="--", color="dimgrey", label="1-1 line")
     ax1.set_xlabel("Actual", fontsize=fontsize)
     ax1.set_ylabel("Predicted", fontsize=fontsize)
     ax1.legend(loc="upper right", fontsize=fontsize)
     ax1.set_xlim((40, 370))
     ax1.set_ylim((40, 370))
+    ax1.title.set_text("(a)")
 
-    ax2.scatter(
-        y_test_spike,
-        y_pred_spike,
-        label="Spike region",
-        color="orange",
-    )
-    ax2.plot(y_test, y_test, ls="--", color="grey", label="1-1 line")
+    ax2.scatter(y_test_spike, y_pred_spike, label="Spike region", color="darkorange", s=10)
+    ax2.plot(line_points, line_points, ls="--", color="dimgrey", label="1-1 line")
     ax2.set_xlabel("Actual", fontsize=fontsize)
     ax2.legend(loc="upper right", fontsize=fontsize)
     ax2.set_xlim((40, 370))
     ax2.set_ylim((40, 370))
+    ax2.title.set_text("(b)")
 
-    ax3.scatter(
-        y_test_normal,
-        y_pred_normal,
-        label="Normal region",
-        color="steelblue",
-    )
-    ax3.plot(y_test, y_test, ls="--", color="grey", label="1-1 line")
+    ax3.scatter(y_test_normal, y_pred_normal, label="Normal region", color="dodgerblue", s=10)
+    ax3.plot(line_points, line_points, ls="--", color="dimgrey", label="1-1 line")
     ax3.set_xlabel("Actual", fontsize=fontsize)
     ax3.legend(loc="upper right", fontsize=fontsize)
     ax3.set_xlim((40, 370))
     ax3.set_ylim((40, 370))
+    ax3.title.set_text("(c)")
 
     fig.tight_layout()
     fig.savefig(path + "scatter_" + filename + ".png")
