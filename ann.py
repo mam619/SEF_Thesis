@@ -14,16 +14,24 @@ from tensorflow.keras.wrappers.scikit_learn import KerasRegressor
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Dense, Dropout
 from tensorflow.keras import initializers, optimizers
-from tensorflow.keras.callbacks import EarlyStopping
 
 import utils
 import constants_
 
-ann_params = {"epochs": 500, "batch_size": 50}
+ann_params = {
+    "batch_size": 23,
+    "epochs": 426,
+    "n_hidden": 1,
+    "n_neurons": 55,
+    "loss": 45.665047784686266,
+}
 
 
 def get_ann(
-    n_hidden=4, n_neurons=20, kernel_initializer="he_normal", bias_initializer=initializers.Ones()
+    n_hidden=ann_params["n_hidden"],
+    n_neurons=ann_params["n_neurons"],
+    kernel_initializer="he_normal",
+    bias_initializer=initializers.Ones(),
 ):
     model = Sequential()
 
@@ -78,8 +86,7 @@ if __name__ == "__main__":
         build_fn=get_ann,
         epochs=ann_params["epochs"],
         batch_size=ann_params["batch_size"],
-        validation_split=ann_params["validation_split"],
-        callbacks=EarlyStopping(patience=25),
+        validation_split=0.2,
         shuffle=False,
         verbose=2,
     )
@@ -97,11 +104,11 @@ if __name__ == "__main__":
     results = utils.get_results(y_test, y_pred)
 
     # save results
-    with open("results/results_ann_callbacks.json", "w") as f:
+    with open("results/results_ann.json", "w") as f:
         json.dump(results, f)
 
     utils.plot_results(
-        y_test, y_pred, filename="ann_callbacks", window_plot=200, fontsize=14, fig_size=(15, 5)
+        y_test, y_pred, filename="ann", window_plot=200, fontsize=14, fig_size=(15, 5)
     )
 
-    utils.plot_scatter(y_test, y_pred, filename="ann_callbacks")
+    utils.plot_scatter(y_test, y_pred, filename="ann")
