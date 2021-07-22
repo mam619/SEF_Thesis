@@ -14,16 +14,15 @@ from tensorflow.keras.wrappers.scikit_learn import KerasRegressor
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Dense, Dropout
 from tensorflow.keras import initializers, optimizers
-from tensorflow.keras.callbacks import EarlyStopping
 
 import utils
 
 
-ann_params = {"epochs": 500, "batch_size": 50}
+ann_params = {"batch_size": 94, "epochs": 24, "n_hidden": 1, "n_neurons": 34}
 
 
 def get_ann(
-    n_hidden=4, n_neurons=20, kernel_initializer="he_normal", bias_initializer=initializers.Ones()
+    n_hidden, n_neurons, kernel_initializer="he_normal", bias_initializer=initializers.Ones()
 ):
     model = Sequential()
 
@@ -63,7 +62,11 @@ if __name__ == "__main__":
     data = pd.read_csv("data/processed_data/data_final.csv", index_col=0, parse_dates=True)
 
     # set prediction window according to the date range required
-    data = data.loc[data.index > datetime(2017, 6, 1, tzinfo=pytz.utc), :]
+    data = data.loc[
+        (data.index >= datetime(2017, 3, 1, tzinfo=pytz.utc))
+        & (data.index < datetime(2018, 1, 1, tzinfo=pytz.utc)),
+        :,
+    ]
 
     # Divide features and labels
     y = data.pop("offers")
@@ -71,11 +74,12 @@ if __name__ == "__main__":
 
     # create regressor and scaler
     regressor = KerasRegressor(
-        build_fn=get_ann,
+        build_fn=lambda: get_ann(
+            n_hidden=ann_params["n_hidden"], n_neurons=ann_params["n_neurons"]
+        ),
         epochs=ann_params["epochs"],
         batch_size=ann_params["batch_size"],
-        validation_split=ann_params["validation_split"],
-        callbacks=EarlyStopping(patience=25),
+        validation_split=0.2,
         shuffle=False,
         verbose=2,
     )
@@ -93,11 +97,11 @@ if __name__ == "__main__":
     results = utils.get_results(y_test, y_pred)
 
     # save results
-    with open("results/results_ann_callbacks.json", "w") as f:
+    with open("results/results_ann.json", "w") as f:
         json.dump(results, f)
 
     utils.plot_results(
-        y_test, y_pred, filename="ann_callbacks", window_plot=200, fontsize=14, fig_size=(15, 5)
+        y_test, y_pred, filename="ann", window_plot=200, fontsize=14, fig_size=(15, 5)
     )
 
-    utils.plot_scatter(y_test, y_pred, filename="ann_callbacks")
+    utils.plot_scatter(y_test, y_pred, filename="ann")

@@ -1,1 +1,1 @@
-{"batch_size": 27, "epochs": 322, "n_hidden": 1, "n_neurons": 159}
+{"batch_size": 93, "epochs": 26, "n_hidden": 1, "n_neurons": 30}

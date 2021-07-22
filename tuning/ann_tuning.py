@@ -108,6 +108,13 @@ if __name__ == "__main__":
         "batch_size": hp.uniformint("batch_size", 13, 100),
     }
 
+    space = {
+        "n_hidden": hp.choice("n_hidden", [1]),
+        "n_neurons": hp.uniformint("n_neurons", 13, 50),
+        "epochs": hp.uniformint("epochs", 10, 100),
+        "batch_size": hp.uniformint("batch_size", 13, 100),
+    }
+
     trials = Trials()
 
     best_ann = fmin(
