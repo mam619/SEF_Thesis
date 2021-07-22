@@ -21,6 +21,7 @@ import sys
 
 sys.path.append("../")
 import utilscolab
+import constants_
 
 
 # define objective function
@@ -80,7 +81,7 @@ def lstm_tuning_objective(params):
     scaler = RobustScaler()
 
     # nested cross validation
-    tscv = TimeSeriesSplit(n_splits=3, max_train_size=183 * 48, test_size=31 * 48)
+    tscv = TimeSeriesSplit(n_splits=3, max_train_size=183 * 48, test_size=15 * 48)
 
     # perform nested cross validation and get results
     y_test, y_pred = utilscolab.my_cross_val_predict_for_lstm(
@@ -104,8 +105,8 @@ if __name__ == "__main__":
 
     # set prediction window according to the date range required
     data = data.loc[
-        (data.index >= datetime(2017, 3, 1, tzinfo=pytz.utc))
-        & (data.index < datetime(2018, 1, 1, tzinfo=pytz.utc)),
+        (data.index >= constants_.TUNING_DATES["start"])
+        & (data.index < constants_.TUNING_DATES["end"]),
         :,
     ]
 

@@ -16,13 +16,22 @@ from tensorflow.keras.layers import Dense, Dropout
 from tensorflow.keras import initializers, optimizers
 
 import utils
+import constants_
 
-
-ann_params = {"batch_size": 94, "epochs": 24, "n_hidden": 1, "n_neurons": 34}
+ann_params = {
+    "batch_size": 23,
+    "epochs": 426,
+    "n_hidden": 1,
+    "n_neurons": 55,
+    "loss": 45.665047784686266,
+}
 
 
 def get_ann(
-    n_hidden, n_neurons, kernel_initializer="he_normal", bias_initializer=initializers.Ones()
+    n_hidden=ann_params["n_hidden"],
+    n_neurons=ann_params["n_neurons"],
+    kernel_initializer="he_normal",
+    bias_initializer=initializers.Ones(),
 ):
     model = Sequential()
 
@@ -63,8 +72,13 @@ if __name__ == "__main__":
 
     # set prediction window according to the date range required
     data = data.loc[
+<<<<<<< HEAD
         (data.index >= datetime(2017, 3, 1, tzinfo=pytz.utc))
         & (data.index < datetime(2018, 1, 1, tzinfo=pytz.utc)),
+=======
+        (data.index >= constants_.TEST_DATES["start"])
+        & (data.index < constants_.TEST_DATES["end"]),
+>>>>>>> 3943d7490f98d71c4f602466bc58da190bb3200b
         :,
     ]
 
@@ -88,7 +102,7 @@ if __name__ == "__main__":
     pipeline = Pipeline([("scaler", RobustScaler()), ("regressor", regressor)])
 
     # nested cross validation
-    tscv = TimeSeriesSplit(n_splits=3, max_train_size=(183 * 48), test_size=31 * 48)
+    tscv = TimeSeriesSplit(n_splits=3, max_train_size=(183 * 48), test_size=15 * 48)
 
     # perform nested cross validation and get results
     y_test, y_pred = utils.my_cross_val_predict(pipeline, X, y, tscv)

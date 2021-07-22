@@ -1,5 +1,7 @@
 import pandas as pd
+from datetime import datetime
 import time
+import pytz
 import json
 import pickle
 
@@ -16,8 +18,12 @@ from tensorflow.keras import initializers, optimizers
 import hyperopt
 from hyperopt import fmin, tpe, hp, STATUS_OK, Trials
 
-import utils
+import sys
+
+sys.path.append("../")
+import utilscolab
 import constants_
+
 
 # define objective function
 def ann_tuning_objective(params):
@@ -71,10 +77,10 @@ def ann_tuning_objective(params):
     tscv = TimeSeriesSplit(n_splits=3, max_train_size=183 * 48, test_size=15 * 48)
 
     # perform nested cross validation and get results
-    y_test, y_pred = utils.my_cross_val_predict(pipeline, X, y, tscv)
+    y_test, y_pred = utilscolab.my_cross_val_predict(pipeline, X, y, tscv)
 
     # calculate results
-    rmse_general = utils.get_results(y_test, y_pred)["rmse_general"]
+    rmse_general = utilscolab.get_results(y_test, y_pred)["rmse_general"]
 
     return {
         "loss": rmse_general,
@@ -86,7 +92,7 @@ def ann_tuning_objective(params):
 if __name__ == "__main__":
 
     # import data
-    data = pd.read_csv("data/processed_data/data_final.csv", index_col=0, parse_dates=True)
+    data = pd.read_csv("../data/processed_data/data_final.csv", index_col=0, parse_dates=True)
 
     # set prediction window according to the date range required
     data = data.loc[
@@ -112,7 +118,7 @@ if __name__ == "__main__":
         max_trials = 50  # initial max_trials. put something small to not have to wait
 
         try:  # try to load an already saved trials object, and increase the max
-            trials = pickle.load(open("results/ann_trials_loop.p", "rb"))
+            trials = pickle.load(open("results/ann_trials_colab_loop.p", "rb"))
             max_trials = len(trials.trials) + trials_step
 
         except:  # create a new trials object and start searching
@@ -133,11 +139,11 @@ if __name__ == "__main__":
         )
 
         # save best results
-        with open("results/ann_hyperparameters_loop.json", "w") as f:
+        with open("results/ann_hyperparameters_colab_loop.json", "w") as f:
             json.dump(ann_hyperparameters, f)
 
         # save the trials object
-        pickle.dump(trials, open("results/ann_trials_loop.p", "wb"))
+        pickle.dump(trials, open("results/ann_trials_colab_loop.p", "wb"))
 
     # loop indefinitely and stop whenever you like
     while True:
