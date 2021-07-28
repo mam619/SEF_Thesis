@@ -124,7 +124,7 @@ if __name__ == "__main__":
         max_trials = 20  # initial max_trials. put something small to not have to wait
 
         try:  # try to load an already saved trials object, and increase the max
-            trials = pickle.load(open("lstm_trials_colab_loop.p", "rb"))
+            trials = pickle.load(open("lstm_trials.p", "rb"))
             max_trials = len(trials.trials) + trials_step
 
         except:  # create a new trials object and start searching
@@ -145,11 +145,11 @@ if __name__ == "__main__":
         )
 
         # save best results
-        with open("lstm_hyperparameters_colab_loop.json", "w") as f:
+        with open("lstm_hyperparameters.json", "w") as f:
             json.dump(lstm_hyperparameters, f)
 
         # save the trials object
-        pickle.dump(trials, open("lstm_trials_colab_loop.p", "wb"))
+        pickle.dump(trials, open("lstm_trials.p", "wb"))
 
     # loop indefinitely and stop whenever you like
     while True:
