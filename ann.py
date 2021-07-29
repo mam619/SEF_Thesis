@@ -72,13 +72,8 @@ if __name__ == "__main__":
 
     # set prediction window according to the date range required
     data = data.loc[
-<<<<<<< HEAD
-        (data.index >= datetime(2017, 3, 1, tzinfo=pytz.utc))
-        & (data.index < datetime(2018, 1, 1, tzinfo=pytz.utc)),
-=======
         (data.index >= constants_.TEST_DATES["start"])
         & (data.index < constants_.TEST_DATES["end"]),
->>>>>>> 3943d7490f98d71c4f602466bc58da190bb3200b
         :,
     ]
 

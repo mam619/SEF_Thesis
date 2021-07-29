@@ -112,7 +112,7 @@ if __name__ == "__main__":
         max_trials = 50  # initial max_trials. put something small to not have to wait
 
         try:  # try to load an already saved trials object, and increase the max
-            trials = pickle.load(open("results/ann_trials_loop.p", "rb"))
+            trials = pickle.load(open("results/ann_trials.p", "rb"))
             max_trials = len(trials.trials) + trials_step
 
         except:  # create a new trials object and start searching
@@ -133,11 +133,11 @@ if __name__ == "__main__":
         )
 
         # save best results
-        with open("results/ann_hyperparameters_loop.json", "w") as f:
+        with open("results/ann_hyperparameters.json", "w") as f:
             json.dump(ann_hyperparameters, f)
 
         # save the trials object
-        pickle.dump(trials, open("results/ann_trials_loop.p", "wb"))
+        pickle.dump(trials, open("results/ann_trials.p", "wb"))
 
     # loop indefinitely and stop whenever you like
     while True:

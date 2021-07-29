@@ -219,7 +219,7 @@ def plot_results(
     plt.grid(which="major", linestyle="-", linewidth="0.5")
     plt.grid(which="minor", linestyle=":", linewidth="0.5")
 
-    plt.xlabel("2019", fontsize=fontsize)
+    plt.xlabel("2018", fontsize=fontsize)
     plt.ylabel("£/MWh", fontsize=fontsize)
 
     plt.xticks(fontsize=fontsize - 1)
@@ -237,7 +237,7 @@ def plot_scatter(y_test, y_pred, filename, fontsize=13, fig_size=(15, 5), path="
 
     fig, (ax1, ax2, ax3) = plt.subplots(1, 3)
 
-    line_points = [min(y_test), y_test[5], max(y_test)]
+    line_points = [min(y_test), y_test[5], 350]
 
     fig.set_figwidth(fig_size[0])
     fig.set_figheight(fig_size[1])

@@ -7,6 +7,8 @@ import pytz
 import json
 import matplotlib.pyplot as plt
 
+import constants_
+
 from sklearn.model_selection import train_test_split
 
 import utils
@@ -17,14 +19,17 @@ if __name__ == "__main__":
     data = pd.read_csv("data/processed_data/data_final.csv", index_col=0, parse_dates=True)
 
     # set prediction window according to the date range required
-    data = data.loc[data.index > datetime(2017, 6, 1, tzinfo=pytz.utc), :]
-
+    data = data.loc[
+        (data.index >= constants_.TEST_DATES["start"])
+        & (data.index < constants_.TEST_DATES["end"]),
+        :,
+    ]
     # Divide features and labels
     y = data.pop("offers")
     X = data
 
-    # divide target into train and test with 33% test data
-    y_train, y_test = train_test_split(y, test_size=0.33, shuffle=False)
+    # divide target into train and test for same test size as in other models (last month and a half of test size)
+    y_train, y_test = train_test_split(y, test_size=0.2, shuffle=False)
 
     # BENCHMARK 1 predictions
     y_pred_1 = np.ones(len(y_test)) * y_train.mean()
@@ -140,7 +145,7 @@ if __name__ == "__main__":
     axes[0, 0].minorticks_on()
     axes[0, 0].grid(which="major", linestyle="-", linewidth="0.5")
     axes[0, 0].grid(which="minor", linestyle=":", linewidth="0.5")
-    axes[0, 0].set_xlabel("2019", fontsize=fontsize)
+    axes[0, 0].set_xlabel("2018", fontsize=fontsize)
     axes[0, 0].set_ylabel("£/MWh", fontsize=fontsize)
     axes[0, 0].tick_params(axis="x", labelsize=fontsize - 1)
     axes[0, 0].tick_params(axis="y", labelsize=fontsize - 1)
@@ -181,7 +186,7 @@ if __name__ == "__main__":
     axes[0, 1].minorticks_on()
     axes[0, 1].grid(which="major", linestyle="-", linewidth="0.5")
     axes[0, 1].grid(which="minor", linestyle=":", linewidth="0.5")
-    axes[0, 1].set_xlabel("2019", fontsize=fontsize)
+    axes[0, 1].set_xlabel("2018", fontsize=fontsize)
     axes[0, 1].set_ylabel("£/MWh", fontsize=fontsize)
     axes[0, 1].tick_params(axis="x", labelsize=fontsize - 1)
     axes[0, 1].tick_params(axis="y", labelsize=fontsize - 1)
@@ -222,7 +227,7 @@ if __name__ == "__main__":
     axes[1, 0].minorticks_on()
     axes[1, 0].grid(which="major", linestyle="-", linewidth="0.5")
     axes[1, 0].grid(which="minor", linestyle=":", linewidth="0.5")
-    axes[1, 0].set_xlabel("2019", fontsize=fontsize)
+    axes[1, 0].set_xlabel("2018", fontsize=fontsize)
     axes[1, 0].set_ylabel("£/MWh", fontsize=fontsize)
     axes[1, 0].tick_params(axis="x", labelsize=fontsize - 1)
     axes[1, 0].tick_params(axis="y", labelsize=fontsize - 1)
@@ -264,7 +269,7 @@ if __name__ == "__main__":
     axes[1, 1].minorticks_on()
     axes[1, 1].grid(which="major", linestyle="-", linewidth="0.5")
     axes[1, 1].grid(which="minor", linestyle=":", linewidth="0.5")
-    axes[1, 1].set_xlabel("2019", fontsize=fontsize)
+    axes[1, 1].set_xlabel("2018", fontsize=fontsize)
     axes[1, 1].set_ylabel("£/MWh", fontsize=fontsize)
     axes[1, 1].tick_params(axis="x", labelsize=fontsize - 1)
     axes[1, 1].tick_params(axis="y", labelsize=fontsize - 1)

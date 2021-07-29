@@ -16,24 +16,24 @@ import utils
 import constants_
 
 # lstm
-# lstm_params = {
-#     "batch_size": 99,
-#     "epochs": 252,
-#     "n_hidden": 2,
-#     "n_neurons": 145,
-#     "steps": 43,
-#     "loss": 49.56034310376704,
-# }
-
-# lstm_1
 lstm_params = {
-    "batch_size": 40,
-    "epochs": 441,
-    "n_hidden": 1,
-    "n_neurons": 130,
-    "steps": 31,
-    "loss": 49.09277408708952,
+    "batch_size": 99,
+    "epochs": 252,
+    "n_hidden": 2,
+    "n_neurons": 145,
+    "steps": 43,
+    "loss": 49.56034310376704,
 }
+
+# # lstm_1
+# lstm_params = {
+#     "batch_size": 40,
+#     "epochs": 441,
+#     "n_hidden": 1,
+#     "n_neurons": 130,
+#     "steps": 31,
+#     "loss": 49.09277408708952,
+# }
 
 
 def get_lstm(kernel_initializer="he_uniform", bias_initializer=initializers.Ones()):
@@ -111,16 +111,16 @@ if __name__ == "__main__":
     results = utils.get_results(y_test, y_pred)
 
     # save results
-    with open("results/results_lstm_1.json", "w") as f:
+    with open("results/results_lstm.json", "w") as f:
         json.dump(results, f)
 
     utils.plot_results(
         y_test,
         y_pred,
-        filename="lstm_1",
+        filename="lstm",
         window_plot=200,
         fontsize=14,
         fig_size=(15, 5),
     )
 
-    utils.plot_scatter(y_test, y_pred, filename="lstm_1")
+    utils.plot_scatter(y_test, y_pred, filename="lstm")

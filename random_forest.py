@@ -1,9 +1,9 @@
 # random forest (multi-var)
 
 import pandas as pd
-from datetime import datetime
-import pytz
 import json
+
+import constants_
 
 from sklearn.model_selection import TimeSeriesSplit
 from sklearn.ensemble import RandomForestRegressor
@@ -18,8 +18,11 @@ if __name__ == "__main__":
     data = pd.read_csv("data/processed_data/data_final.csv", index_col=0, parse_dates=True)
 
     # set prediction window according to the date range required
-    data = data.loc[data.index > datetime(2017, 6, 1, tzinfo=pytz.utc), :]
-
+    data = data.loc[
+        (data.index >= constants_.TEST_DATES["start"])
+        & (data.index < constants_.TEST_DATES["end"]),
+        :,
+    ]
     # Divide features and labels
     y = data.pop("offers")
     X = data
@@ -31,7 +34,7 @@ if __name__ == "__main__":
     pipeline = Pipeline([("scaler", RobustScaler()), ("regressor", regressor)])
 
     # nested cross validation
-    tscv = TimeSeriesSplit(n_splits=6, max_train_size=365 * 48, test_size=30 * 48)
+    tscv = TimeSeriesSplit(n_splits=3, max_train_size=183 * 48, test_size=15 * 48)
 
     # perform nested cross validation and get results
     y_test, y_pred = utils.my_cross_val_predict(pipeline, X, y, tscv)
